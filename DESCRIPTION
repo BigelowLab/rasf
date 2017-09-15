@@ -1,0 +1,15 @@
+Package: celmap
+Maintainer: Ben Tupper <btupper@bigelow.org>
+Author: Ben Tupper <btupper@bigelow.org>
+URL: https://github.com/btupper/reclab
+Version: 0.1
+License: MIT + file LICENSE
+Title: celmap
+Description: Tools for working with Computational Ecology Lab map data
+Depends:
+    R (>= 3.0)
+Imports:
+    sp,
+    raster,
+    nearth
+RoxygenNote: 5.0.1
