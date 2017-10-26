@@ -9,6 +9,8 @@ get_boundaries(where = c("Maine", "New Brunswick", "Quebec", "New Hampshire"),
 }
 \arguments{
 \item{where}{names the states and or provinces, or group names such as 'GOM'}
+
+\item{what}{the dataset to quuery (boundary50m - the default - or boundary10m)}
 }
 \value{
 a Spatial* object

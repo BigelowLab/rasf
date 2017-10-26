@@ -4,7 +4,9 @@
 #'
 #' @export
 #' @param where character 'native' (aka 'all'), 'nwa', 'neac' etc
-#' @return 4 element vector of [left, right, bottom, top]
+#' @param pad numeric one or two element pad to add to a bounding box, default [0,0]
+#' @param form character, either numeric, extent or sp
+#' @return 4 element vector of [left, right, bottom, top], extent or SpatialPolygons object
 get_bb <- function(
     where = c('all', 'maine', 'gom', 'nwa', 'neac', 'native')[2], 
     pad = list(a = c(0,0), b = c(0.1, 0.1))[[1]],
@@ -35,6 +37,7 @@ get_bb <- function(
 #' 'Quebec' can be used in lieu of "Qu\xe9bec"
 #' @export
 #' @param where names the states and or provinces, or group names such as 'GOM'
+#' @param what the dataset to quuery (boundary50m - the default - or boundary10m)
 #' @return a Spatial* object
 get_boundaries = function(
     where = c("Maine", "New Brunswick", "Quebec", "New Hampshire"), 

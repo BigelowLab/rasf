@@ -10,9 +10,13 @@ get_bb(where = c("all", "maine", "gom", "nwa", "neac", "native")[2],
 }
 \arguments{
 \item{where}{character 'native' (aka 'all'), 'nwa', 'neac' etc}
+
+\item{pad}{numeric one or two element pad to add to a bounding box, default [0,0]}
+
+\item{form}{character, either numeric, extent or sp}
 }
 \value{
-4 element vector of [left, right, bottom, top]
+4 element vector of [left, right, bottom, top], extent or SpatialPolygons object
 }
 \description{
 Note - analyses are LCC coordinates while forecasts are longlat
