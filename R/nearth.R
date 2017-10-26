@@ -5,7 +5,7 @@
 #' @export
 #' @param where character 'native' (aka 'all'), 'nwa', 'neac' etc
 #' @return 4 element vector of [left, right, bottom, top]
-celmap_bb <- function(
+get_bb <- function(
     where = c('all', 'maine', 'gom', 'nwa', 'neac', 'native')[2], 
     pad = list(a = c(0,0), b = c(0.1, 0.1))[[1]],
     form = c("numeric", "extent", "sp")[1]){
@@ -80,7 +80,7 @@ get_vectors = function(where = c("World", "Maine", "GOM", "NWA", "NEAC")[1],
         'boundary10m' = 'ne_10m_admin_1_states_provinces_shp',
         tolower(what[1]))
         
-    bb = celmap_bb(where[1], ...)
+    bb = get_bb(where[1], ...)
     
     nearth::read_nearth(what,what = 'vector', bb = bb)[[1]]
 }
