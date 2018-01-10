@@ -3,7 +3,7 @@
 #' @export
 #' @param name the name of the projection string (just one)
 #' @return a projection string
-get_proj_string = function(name = 'longlat'){
+get_proj_string = function(name = c('longlat', "lcc", "all")[1]){
     
     PROJ = c(
         longlat =  "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0",
@@ -11,7 +11,9 @@ get_proj_string = function(name = 'longlat'){
         
     switch(tolower(name[1]),
         'longlat' = PROJ[['longlat']],
+        'lonlat' = PROJ[['longlat']],
         'lcc' = PROJ[['lcc']],
+        "all" = PROJ,
         paste('projection name not known:', name[1]))
 }
 
