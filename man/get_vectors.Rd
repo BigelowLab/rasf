@@ -21,4 +21,3 @@ a Spatial* object
 Currently draws from Natural Earth.  Note that this clips the region
 so edge effects appear - especially for boundaries.  See \code{get_boundary()}
 }
-

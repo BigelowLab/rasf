@@ -6,6 +6,18 @@
 \alias{celmap-package}
 \title{celmap: Tools working with Computational Ecology Lab map data.}
 \description{
-Extra functionality for working with mapped data
+Extra functionality for working with mapped data.
 }
+\details{
+One key purpose of celmap is to provide a single source for bounding boxes.
+These can be retrieved by name and are listed by default as a numeric vector
+in \code{[left, right, bottom, top]} (aka \code{[xmin, xmax, ymin, ymax]}) order.
 
+\itemize{
+  \item{\code{maine}  State of Maine  \code{[-71.1, -67, 43, 47.5]}}
+  \item{\code{gom}  Gulf of Maine  \code{[-72, -63, 39, 46]}}
+  \item{\code{nwa}  Northwest Atlantic  \code{[-77.0, -51.5, 37.9, 56.7}]}
+  \item{\code{neac}  New England Atlantic Canada  \code{[-74, -59.75, 41, 48.15]}}
+  \item{any other \code{[-180, 180, -90, 90]}}
+}
+}

@@ -18,4 +18,3 @@ a SpatialPoints object
 \description{
 Convert a 4-element bbox vector to SpatialPoints
 }
-

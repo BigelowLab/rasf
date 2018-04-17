@@ -17,4 +17,3 @@ a SpatialPolygons object
 \description{
 Convert a 4-element bbox vector to a SpatialPolygonsDataFrame object
 }
-

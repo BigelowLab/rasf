@@ -15,4 +15,3 @@ a projection string
 \description{
 Get one of the common projection strings
 }
-

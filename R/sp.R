@@ -39,7 +39,6 @@ bbox_to_matrix <- function(x = c(-72,-63,39,46), close = TRUE){
    x
 }
 
-
 #' Convert a 4-element bbox vector to SpatialPoints
 #'
 #' 
@@ -79,4 +78,17 @@ bbox_to_SpatialPolygonsDataFrame <- function(bb = get_bb("gom"),...){
    spolys <- bbox_to_SpatialPolygons(bb, ...)
    sp::SpatialPolygonsDataFrame(spolys,
       data = data.frame(ID = names(spolys), row.names = names(spolys)))
+}
+
+#' Convert a 4-element bbox vector to a sf::st_bbox object
+#' 
+#' @export
+#' @param bb a 4-element numeric vector of left, bottom, right, top coordinates
+#' @param proj_string a proj4string suitable to pass to \code{sp::CRS()}
+#' @return a SpatialPolygons object
+bbox_to_sf <- function(bb = get_bb("gom"), 
+    proj_string = get_proj_string()){
+    
+    sf::st_bbox(c(xmin = bb[1], xmax = bb[2], ymin = bb[3], ymax = bb[4]), 
+                crs = sf::st_crs(proj_string))
 }

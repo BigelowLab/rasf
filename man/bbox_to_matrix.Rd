@@ -18,4 +18,3 @@ a matrix of 2 columns and either 5 rows (closed) or 4 rows (open)
 \description{
 Convert a 4-element bbox vector to a matrix of two columns (x and y)
 }
-

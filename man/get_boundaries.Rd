@@ -18,4 +18,3 @@ a Spatial* object
 \description{
 'Quebec' can be used in lieu of "Qu\xe9bec"
 }
-
