@@ -14,6 +14,7 @@ get_bb(where = c("all", "maine", "gom", "nwa", "neac", "native")[2],
   \item{'gom' Gulf of Maine \code{-72, -63, 39, 46}}
   \item{'nwa' Northwest Atlantic \code{-77.0, -51.5, 37.9, 56.7}}
   \item{'neac' New England Atlantic Canada \code{-74, -59.75, 41, 48.15}}
+  \item{'gosl' Gulf of St Lawrence \code{-67,-56.5,44.4,50.5}}
   \item{any other \code{-180, 180, -90, 90}}
 }}
 
@@ -29,5 +30,5 @@ default is NULL to skip}
 nwa'   =   c(-77.1199677903564, -51.6967983980479,
 }
 \description{
-Note - analyses are LCC coordinates while forecasts are longlat
+Various bounding boxes for analyses or forecasts
 }

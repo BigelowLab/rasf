@@ -1,6 +1,5 @@
 #' Various bounding boxes for analyses or forecasts
 #'
-#' Note - analyses are LCC coordinates while forecasts are longlat 
 #'
 #' @export
 #' @param where character 'native' (aka 'all' or 'world'), 'nwa', 'neac' etc
@@ -9,6 +8,7 @@
 #'   \item{'gom' Gulf of Maine \code{-72, -63, 39, 46}}
 #'   \item{'nwa' Northwest Atlantic \code{-77.0, -51.5, 37.9, 56.7}}
 #'   \item{'neac' New England Atlantic Canada \code{-74, -59.75, 41, 48.15}}
+#'   \item{'gosl' Gulf of St Lawrence \code{-67,-56.5,44.4,50.5}}
 #'   \item{any other \code{-180, 180, -90, 90}}
 #' }
 #' @param pad numeric one or two element pad to add to a bounding box, 
@@ -30,6 +30,7 @@ get_bb <- function(
         #              37.9115974449456, 56.6768926463509),
         'nwa'   =   c(-77.0, -51.5, 37.9, 56.7),
         'neac'  =   c(-74, -59.75, 41, 48.15),
+        'gosl'  =   c(-67, -56.5, 44.4, 50.5),
                     c(-180, 180, -90, 90))
                     
     if (!is.null(pad) && !is.na(pad)){
