@@ -16,4 +16,5 @@
 #'
 #' @docType package
 #' @name celmap
+#' @importFrom magrittr %>%
 NULL

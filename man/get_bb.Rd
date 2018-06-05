@@ -14,11 +14,12 @@ get_bb(where = c("all", "maine", "gom", "nwa", "neac", "native")[2],
   \item{'gom' Gulf of Maine \code{-72, -63, 39, 46}}
   \item{'nwa' Northwest Atlantic \code{-77.0, -51.5, 37.9, 56.7}}
   \item{'neac' New England Atlantic Canada \code{-74, -59.75, 41, 48.15}}
+  \item{'liac' Long Island Atlantic Canada \code{-74, -59.75, 37.9, 48.15}}
   \item{'gosl' Gulf of St Lawrence \code{-67,-56.5,44.4,50.5}}
   \item{any other \code{-180, 180, -90, 90}}
 }}
 
-\item{pad}{numeric one or two element pad to add to a bounding box, 
+\item{pad}{numeric one or two element pad to add to a bounding box,
 default is NULL to skip}
 
 \item{form}{character, either numeric, extent, sf or sp}
