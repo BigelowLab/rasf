@@ -1,3 +1,61 @@
+#' Perform binary dilation on a binary raster
+#'
+#' @export
+#' @param x binary raster where the dilated portion has value of 1, all other
+#'    cells have value 0
+#' @param width numeric odd numbered kernal width
+#' @param height numeric odd numbered kernal width
+#' @param pad logical, if TRUE pad the input to resolve edge effects
+#' @param padValue numeric value of pad
+#' @return raster layer
+raster_dilate <- function(x, width = 3, height = width, pad = TRUE, padvalue = 0){
+
+    k = matrix(1/(width[1] * height[1]), ncol = width[1], nrow = height[1])
+
+    ones        = x[] == 1
+    zeroes      = !ones
+
+    x2          = raster::focal(x, f, pad = pad, padValue = padValue)
+
+    x2[ones]    = 1
+    swath       = x2[]
+    swath       = swath > 0 & swath < 1
+
+    x3          = x
+
+
+
+library(raster)
+nr = 30
+nc = 30
+m = matrix(seq_len(nc*nr), ncol = nc, nrow = nr)
+r = raster(upper.tri(m, diag = TRUE))
+ocean   = r[] == 0
+land    = !ocean
+
+fr = 5
+fc = 5
+f = matrix(1/(fr*fc), nrow = fr, ncol = fr)
+
+r2 = focal(r,f, pad = TRUE, padValue = 0)
+
+r2[land]    = 1
+swath       = r2[]
+swath       = swath > 0 & swath < 1
+r3          = r
+r3[]        = 1
+r3[swath]   = 0
+
+s           = stack(r, r2, r3)
+names(s)    = c("mask", "focal", "swath")
+plot(s)
+
+
+
+}
+
+
+
 #' Determine the closest ocean pixel given [lon,lat] and a lut raster
 #'
 #' @export
