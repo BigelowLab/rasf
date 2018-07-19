@@ -1,0 +1,80 @@
+# This script documents how to create a spatial look up table (LUT) used to
+# assign observations (lon/lat points) to ocean covered pixels.  The LUTs are
+# store as rasters.  Each cell of a lut contains a cell address of the closest
+# cell covered by ocean.  Obviously, cells already covered by ocean will have
+# it's own (original?) cell number.  Cells covered by land will have a cell number
+# of the closest ocean-covered cell.
+
+# unlike creating a simple mask, a lut can't be cropped from a world lut as
+# the cell addresses vary by raster size.
+
+# so, for each resolution and each region read the companion mask and make a lut from that
+
+
+# https://stat.ethz.ch/pipermail/r-sig-geo/2010-November/009822.html
+# https://stat.ethz.ch/pipermail/r-sig-geo/2010-November/009828.html
+
+library(raster)
+library(RANN)
+library(sp)
+library(celmap)
+
+PATH    = "/mnt/ecocast/coredata/mur"
+# regions
+REG = c("nwa")
+
+
+mask_filename <- function(path = PATH, reg = "nwa"){
+   file.path(path, "mask", paste0(reg, ".grd"))
+}
+
+lut_filename <- function(path = PATH, reg = 'world'){
+   file.path(path, "lut", paste0(reg, ".grd"))
+}
+
+
+make_lut <- function(reg = REG[1]){
+
+
+    m <- murtools::read_mask(where = reg)
+    m[is.na(m)] <- 50  # land (NA) become 50
+
+    allP <- raster::rasterToPoints(m)
+    allCell <- matrix(raster::cellFromXY(m, allP),
+            nrow = nrow(m), ncol = ncol(m), byrow = TRUE)
+    lut <- raster::raster(allCell, template = m)
+
+
+    # there are nLand points (10834)
+    land <- raster::rasterToPoints(m, function(x) x >= 50)[,c('x','y')]
+    landCell <- raster::cellFromXY(m, land)
+
+    # and nWater points (26008)
+    water <- raster::rasterToPoints(m, function(x) x < 50)[,c('x','y')]
+
+    # this gives a list back of index and dist from each of the
+    # nLand points (10834) to the nearest water point
+    ix <- RANN::nn2(water, land, k = 1)
+
+    w <- water[ix$nn.idx[,1],]
+
+    reassignedCell <- raster::cellFromXY(m, w)
+
+    lut[landCell] <- reassignedCell
+
+    lut
+    #writeRaster(Cell, file.path(outpath, outfile), overwrite = TRUE)
+}
+
+
+
+for (reg in REG){
+    cat(sprintf("reg = %s",  reg), "\n")
+    lut = make_lut( reg = reg)
+    raster::writeRaster(lut,
+        filename = lut_filename(reg = reg),
+        overwrite = TRUE)
+}
+
+
+
