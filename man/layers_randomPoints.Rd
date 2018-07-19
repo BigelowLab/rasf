@@ -4,7 +4,7 @@
 \alias{layers_randomPoints}
 \title{Select N non-NA random points from a mulitlayer Raster* object}
 \usage{
-layers_randomPoints(R, pts = NULL, N = 1000)
+layers_randomPoints(R, pts = NULL, N = 1000, M = 5)
 }
 \arguments{
 \item{R}{a multilayer Raster* object}
@@ -21,6 +21,9 @@ layers_randomPoints(R, pts = NULL, N = 1000)
  }}
 
 \item{N}{the number of points to select}
+
+\item{M}{numeric, a multiplier to start with a selection of N*M random points
+from which N non-NA and non-pts are selected}
 }
 \value{
 data.frame of sampled points with the following
@@ -29,7 +32,8 @@ data.frame of sampled points with the following
      \item{lat}
      \item{col}
      \item{row}
-     \item{cell}
+     \item{cell 2D matrix index}
+     \item{index 3d array index}
      \item{layer}
      \item{value}
  }

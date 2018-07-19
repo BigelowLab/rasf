@@ -10,8 +10,9 @@ closest_ocean_cell(x, lut = "/mnt/ecocast/coredata/obpg/world/lut_4km.grd")
 \item{x}{the data frame with lon and lat coordinates}
 
 \item{lut}{the raster look-up with precomputed closest ocean cells}
-
-\item{two}{element tibble with lon and lat columns}
+}
+\value{
+tibble with lon and lat columns
 }
 \description{
 Determine the closest ocean pixel given [lon,lat] and a lut raster
