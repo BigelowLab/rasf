@@ -9,7 +9,7 @@ bbox_to_matrix(x = c(-72, -63, 39, 46), close = TRUE)
 \arguments{
 \item{x}{a 4-element numeric vector of left, bottom, right, top coordinates}
 
-\item{close}{logical, if TRUE then close the polygon such that the first 
+\item{close}{logical, if TRUE then close the polygon such that the first
 and last verices are the same}
 }
 \value{

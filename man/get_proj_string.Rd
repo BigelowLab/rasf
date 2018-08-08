@@ -4,7 +4,7 @@
 \alias{get_proj_string}
 \title{Get one of the common projection strings}
 \usage{
-get_proj_string(name = c("longlat", "lcc", "all")[1])
+get_proj_string(name = c("longlat", "lcc", "utm-19", "all")[1])
 }
 \arguments{
 \item{name}{the name of the projection string (just one)}

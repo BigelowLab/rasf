@@ -3,15 +3,17 @@
 #' @export
 #' @param name the name of the projection string (just one)
 #' @return a projection string
-get_proj_string = function(name = c('longlat', "lcc", "all")[1]){
-    
+get_proj_string = function(name = c('longlat', "lcc", "utm-19", "all")[1]){
+
     PROJ = c(
         longlat =  "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0",
+        "utm-19" = "+proj=utm +zone=19 +datum=NAD83 +units=m +no_defs",
         lcc = "+proj=lcc +lat_1=25 +lat_0=25 +lon_0=-95 +k_0=1 +x_0=0 +y_0=0 +a=6367470.21484375 +b=6367470.21484375 +units=km +no_defs")
-        
+
     switch(tolower(name[1]),
         'longlat' = PROJ[['longlat']],
         'lonlat' = PROJ[['longlat']],
+        "utm-19" = PROJ[['utm-19']],
         'lcc' = PROJ[['lcc']],
         "all" = PROJ,
         paste('projection name not known:', name[1]))
@@ -21,7 +23,7 @@ get_proj_string = function(name = c('longlat', "lcc", "all")[1]){
 #'
 #' @export
 #' @param x a 4-element numeric vector of left, bottom, right, top coordinates
-#' @param close logical, if TRUE then close the polygon such that the first 
+#' @param close logical, if TRUE then close the polygon such that the first
 #'    and last verices are the same
 #' @return a matrix of 2 columns and either 5 rows (closed) or 4 rows (open)
 bbox_to_matrix <- function(x = c(-72,-63,39,46), close = TRUE){
@@ -41,7 +43,7 @@ bbox_to_matrix <- function(x = c(-72,-63,39,46), close = TRUE){
 
 #' Convert a 4-element bbox vector to SpatialPoints
 #'
-#' 
+#'
 #' @export
 #' @param bb a 4-element numeric vector of left, bottom, right, top coordinates
 #' @param proj_string a proj4string suitable to pass to \code{sp::CRS()}
@@ -54,7 +56,7 @@ bbox_to_SpatialPoints<- function(bb = get_bb("gom"),
 
 
 #' Convert a 4-element bbox vector to a SpatialPolygons object
-#' 
+#'
 #' @export
 #' @param bb a 4-element numeric vector of left, bottom, right, top coordinates
 #' @param proj_string a proj4string suitable to pass to \code{sp::CRS()}
@@ -69,7 +71,7 @@ bbox_to_SpatialPolygons <- function(bb = get_bb("gom"),
 
 
 #' Convert a 4-element bbox vector to a SpatialPolygonsDataFrame object
-#' 
+#'
 #' @export
 #' @param bb a 4-element numeric vector of left, bottom, right, top coordinates
 #' @param ... further arguments for \code{bbox_to_SpatialPolygons}
@@ -81,14 +83,14 @@ bbox_to_SpatialPolygonsDataFrame <- function(bb = get_bb("gom"),...){
 }
 
 #' Convert a 4-element bbox vector to a sf::st_bbox object
-#' 
+#'
 #' @export
 #' @param bb a 4-element numeric vector of left, bottom, right, top coordinates
 #' @param proj_string a proj4string suitable to pass to \code{sp::CRS()}
 #' @return a SpatialPolygons object
-bbox_to_sf <- function(bb = get_bb("gom"), 
+bbox_to_sf <- function(bb = get_bb("gom"),
     proj_string = get_proj_string()){
-    
-    sf::st_bbox(c(xmin = bb[1], xmax = bb[2], ymin = bb[3], ymax = bb[4]), 
+
+    sf::st_bbox(c(xmin = bb[1], xmax = bb[2], ymin = bb[3], ymax = bb[4]),
                 crs = sf::st_crs(proj_string))
 }

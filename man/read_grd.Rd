@@ -4,9 +4,8 @@
 \alias{read_grd}
 \title{Read the header portion of a raster file}
 \usage{
-
-  read_grd(filename = "/mnt/ecocast/coredata/obpg/gom/DAY/chlor_a/A2014365.L3m_DAY_CHL_chlor_a_4km.grd",
-  form = c("list", "tibble")[2])
+read_grd(filename = file.path("/mnt/ecocast/coredata/obpg/gom/DAY/chlor_a",
+  "A2014365.L3m_DAY_CHL_chlor_a_4km.grd"), form = c("list", "tibble")[2])
 }
 \arguments{
 \item{filename}{on or more filenames}

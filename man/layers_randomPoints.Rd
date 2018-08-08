@@ -2,7 +2,7 @@
 % Please edit documentation in R/raster.R
 \name{layers_randomPoints}
 \alias{layers_randomPoints}
-\title{Select N non-NA random points from a mulitlayer Raster* object}
+\title{Select N random points from a mulitlayer Raster* object}
 \usage{
 layers_randomPoints(R, pts = NULL, N = 1000, M = 5)
 }
@@ -22,8 +22,8 @@ layers_randomPoints(R, pts = NULL, N = 1000, M = 5)
 
 \item{N}{the number of points to select}
 
-\item{M}{numeric, a multiplier to start with a selection of N*M random points
-from which N non-NA and non-pts are selected}
+\item{M}{numeric, a multiplier to start with a selection of random points
+from which N are selected.}
 }
 \value{
 data.frame of sampled points with the following
@@ -39,5 +39,9 @@ data.frame of sampled points with the following
  }
 }
 \description{
-Select N non-NA random points from a mulitlayer Raster* object
+This function does not guaruntee that returned locations do not coincide with
+missing points.  The first layer in R is used with \code{dismo::randomPoints()}
+as if the first layer is a mask so select M*N non-NA points.
+Those selected points are then randomly distributed across the multiple layers
+in R - which gives rise to the possibility that NA points may be selected.
 }

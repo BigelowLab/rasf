@@ -1,61 +1,3 @@
-# #' Perform binary dilation on a binary raster
-# #'
-# #' @export
-# #' @param x binary raster where the dilated portion has value of 1, all other
-# #'    cells have value 0
-# #' @param width numeric odd numbered kernal width
-# #' @param height numeric odd numbered kernal width
-# #' @param pad logical, if TRUE pad the input to resolve edge effects
-# #' @param padValue numeric value of pad
-# #' @return raster layer
-# raster_dilate <- function(x, width = 3, height = width, pad = TRUE, padvalue = 0){
-#
-#     k = matrix(1/(width[1] * height[1]), ncol = width[1], nrow = height[1])
-#
-#     ones        = x[] == 1
-#     zeroes      = !ones
-#
-#     x2          = raster::focal(x, f, pad = pad, padValue = padValue)
-#
-#     x2[ones]    = 1
-#     swath       = x2[]
-#     swath       = swath > 0 & swath < 1
-#
-#     x3          = x
-#
-#
-#
-# library(raster)
-# nr = 30
-# nc = 30
-# m = matrix(seq_len(nc*nr), ncol = nc, nrow = nr)
-# r = raster(upper.tri(m, diag = TRUE))
-# ocean   = r[] == 0
-# land    = !ocean
-#
-# fr = 5
-# fc = 5
-# f = matrix(1/(fr*fc), nrow = fr, ncol = fr)
-#
-# r2 = focal(r,f, pad = TRUE, padValue = 0)
-#
-# r2[land]    = 1
-# swath       = r2[]
-# swath       = swath > 0 & swath < 1
-# r3          = r
-# r3[]        = 1
-# r3[swath]   = 0
-#
-# s           = stack(r, r2, r3)
-# names(s)    = c("mask", "focal", "swath")
-# plot(s)
-#
-#
-#
-# }
-
-
-
 #' Determine the closest ocean pixel given [lon,lat] and a lut raster
 #'
 #' @export
@@ -80,7 +22,9 @@ closest_ocean_cell <- function(x, lut = "/mnt/ecocast/coredata/obpg/world/lut_4k
 #'      \item{projection  string}
 #'      \item{filename string}
 #'  }
-read_grd <- function(filename = '/mnt/ecocast/coredata/obpg/gom/DAY/chlor_a/A2014365.L3m_DAY_CHL_chlor_a_4km.grd',
+read_grd <- function(
+    filename = file.path('/mnt/ecocast/coredata/obpg/gom/DAY/chlor_a',
+                         'A2014365.L3m_DAY_CHL_chlor_a_4km.grd'),
     form = c("list", "tibble")[2]){
 
     if (length(filename) > 1) {
@@ -159,6 +103,20 @@ vet_pts <- function(pts){
     dplyr::tibble(x = pts[,ix], y = pts[,iy], layer = pts[,iz])
 }
 
+
+#' Assemble a vector of raster dimension
+#'
+#' @export
+#' @param x Raster object
+#' @return numeric vector of nc = ncols, nr = nrows, n = ncells (2d),
+#'     nl = nlayers, N = total number of cells (3d)
+raster_shape <- function(x){
+    nr = as.numeric(raster::nrow(x))
+    nc = as.numeric(raster::ncol(x))
+    n  = as.numeric(raster::ncell(x))
+    nl = as.numeric(raster::nlayers(x))
+    c(nc = nc, nr = nr, n = n, nl = nl, N = nc*nr*nl)
+}
 #' Convert a index (1... ncells*nlayers) into a multilayer raster to cell and
 #'    layer coordinates
 #'
@@ -168,15 +126,16 @@ vet_pts <- function(pts){
 #' @return a tibble of index, cell, col, row, x, y, and layer
 cellLayerFromIndex <- function(R, index){
 
-    nr = raster::nrow(R)
-    nc = raster::ncol(R)
-    n  = raster::ncell(R)
-    nl = raster::nlayers(R)
-    N  = nc*nr*nl
-    layer  = ((index-1) %/% n) + 1
-    cell = index - ((layer - 1) * n)
-    ix = ((cell-1) %% nc)  + 1
-    iy = floor((cell - 1) / nc) + 1
+    # nr = as.numeric(raster::nrow(R))
+    # nc = as.numeric(raster::ncol(R))
+    # n  = as.numeric(raster::ncell(R))
+    # nl = as.numeric(raster::nlayers(R))
+    # N  = nc*nr*nl
+    s = raster_shape(R)
+    layer  = ((index-1) %/% s[['n']]) + 1
+    cell = index - ((layer - 1) * s[['n']])
+    ix = ((cell-1) %% s[['nc']])  + 1
+    iy = floor((cell - 1) / s[['nc']]) + 1
     x = raster::xFromCol(R, ix)
     y = raster::yFromRow(R, iy)
     dplyr::tibble(index, cell, col = ix, row = iy, x, y, layer)
@@ -190,10 +149,11 @@ cellLayerFromIndex <- function(R, index){
 #' @return vector of array indices as if the raster were a 3d array
 indexFromPts <- function(R, pts){
     if (!inherits(R, 'BasicRaster')) stop("Input R must be a Raster* class")
-    nc <- as.integer(raster::ncell(R))
-    nl <- as.integer(raster::nlayers(R))
-    ny <- raster::nrow(R)
-    nx <- raster::ncol(R)
+    #nc <- as.integer(raster::ncell(R))
+    #nl <- as.integer(raster::nlayers(R))
+    #ny <- raster::nrow(R)
+    #nx <- raster::ncol(R)
+    s <- raster_shape(R)
 
     pts <- vet_pts(pts)
     # rows
@@ -201,9 +161,10 @@ indexFromPts <- function(R, pts){
     # cols
     y   <- raster::rowFromY(R, pts$y)
     z   <- pts$layer
-    if (is.character(layer)) layer <- match(layer, names(R))
+    if (is.character(z)) z <- match(z, names(R))
     # row + number of rows * rowsize + number of layers * layersize
-    index <- x + (y-1)*nx  + (z-1)*nc
+    #index <- x + (y-1)*nx  + (z-1)*nc
+    index <- x + (y-1)*s[['nc']] + (z-1)*s[['n']]
     return(index)
 }
 
@@ -321,10 +282,10 @@ cellLayerFromPts <- function(R, pts){
 layers_extractPoints <- function(R, pts){
 
     if (!inherits(R, 'BasicRaster')) stop("Input R must be a Raster* class")
-    nc <- as.integer(raster::ncell(R))
-    nl <- as.integer(raster::nlayers(R))
-    ny <- raster::nrow(R)
-    nx <- raster::ncol(R)
+    nc <- as.numeric(raster::ncell(R))
+    nl <- as.numeric(raster::nlayers(R))
+    ny <- as.numeric(raster::nrow(R))
+    nx <- as.numeric(raster::ncol(R))
 
     if (!(is.data.frame(pts) || is.matrix(pts)))
         stop("pts must be data.frame or matrix")
@@ -335,7 +296,7 @@ layers_extractPoints <- function(R, pts){
     iz <- which(nm %in% c("layer", "z"))[1]
     if (length(iz) == 0) stop("pts must have 'layer' or 'z' column")
     layer <- pts[,iz]
-    if (is.character(layer)) layer <- match(layer, names(R))
+    #if (is.character(layer)) layer <- match(layer, names(R))
 
     ix <- which(nm %in% c("x", "lon"))[1]
     if (length(ix) == 0) stop("pts must have 'x' or 'lon' column")
@@ -343,15 +304,17 @@ layers_extractPoints <- function(R, pts){
     iy <- which(nm %in% c("y", "lat"))[1]
     if (length(iy) == 0) stop("pts must have 'y' or 'lat' column")
 
-    flayer  <- factor(layer)
-    pp      <- split(pts, flayer)
-    ii      <- as.numeric(levels(flayer))
-    vv      <- sapply(ii,
+    #flayer  <- factor(layer)
+    pp      <- split(pts, layer)
+    nmR     <- names(R)
+    vv      <- sapply(names(pp),
         function(i){
-            raster::extract(R[[i]], pp[[i]][,c(ix, iy)])
-        }
-    )
-    v       <- unsplit(vv, flayer, drop = FALSE)
+            if (i %in% nmR)
+                raster::extract(R[[i]], pp[[i]][,c(ix, iy), drop = FALSE])
+            else
+                rep(NA_real_, nrow(pp[[i]]))
+        })
+    v       <- unsplit(vv, layer, drop = FALSE)
 
     #cell <- cellFromPts(R, pts)
 
@@ -361,7 +324,15 @@ layers_extractPoints <- function(R, pts){
     unname(v)
 }
 
-#' Select N non-NA random points from a mulitlayer Raster* object
+
+
+#' Select N random points from a mulitlayer Raster* object
+#'
+#' This function does not guaruntee that returned locations do not coincide with
+#' missing points.  The first layer in R is used with \code{dismo::randomPoints()}
+#' as if the first layer is a mask so select M*N non-NA points.
+#' Those selected points are then randomly distributed across the multiple layers
+#' in R - which gives rise to the possibility that NA points may be selected.
 #'
 #' @export
 #' @param R a multilayer Raster* object
@@ -376,8 +347,8 @@ layers_extractPoints <- function(R, pts){
 #'      \item{'x', 'y' and 'layer' (or 'z')}
 #'  }
 #' @param N the number of points to select
-#' @param M numeric, a multiplier to start with a selection of N*M random points
-#' from which N non-NA and non-pts are selected
+#' @param M numeric, a multiplier to start with a selection of random points
+#'          from which N are selected.
 #' @return data.frame of sampled points with the following
 #'  \itemize{
 #'      \item{lon}
@@ -390,53 +361,29 @@ layers_extractPoints <- function(R, pts){
 #'      \item{value}
 #'  }
 layers_randomPoints <- function(R, pts = NULL, N = 1000, M = 5){
-
-    if (!inherits(R, 'BasicRaster')) stop("Input R must be a Raster* class")
-    nc <- raster::ncell(R)
-    nl <- raster::nlayers(R)
-    ny <- raster::nrow(R)
-    nx <- raster::ncol(R)
-
-    if (N > (nc * nl))
-        stop("number of random points requested, N, exceeds number of available cells")
-    if ((N*M) > (nc * nl))
-        stop("number of pooled random points requested, N*M, exceeds available number of cells")
-
-    index   = sample(nc * nl, N*M)
-    xyz     = cellLayerFromIndex(R, index)
-    v       = layers_extractPoints(R, xyz)
-    vna     = is.na(v)
-
+    s   = raster_shape(R)
+    # allow dismo::randomPoints to select from the 2d plane of the first layer
+    xy  = dismo::randomPoints(R, n = N*M)
+    # generate random layers
+    z   = sample(seq_len(s[['nl']]), size = N*M, replace = TRUE)
+    layers = names(R)[z]
+    xyz = dplyr::tibble(x = xy[,'x'], y = xy[,'y'], layer = layers)
+    # get the 3d index lof each
+    index = indexFromPts(R, xyz)
     if (!is.null(pts)){
-        pts = vet_pts(pts)
-        pts_idx = indexFromPts(R, pts)
-        ix <- match(pts_idx, index)
-        ixna <- is.na(ix)
-        if (!all(ixna)){
-            index[ix[!ixna]] <- NA
-        }
+        pindex = indexFromPts(R, pts)
+        pindex = index[!is.na(pindex)]
+        index  = index[!(index %in% pindex)]
     }
-    if (any(vna)) index[vna] <- NA
-    index <- index[!is.na(index)]
-    if (length(index) < N)
-        stop("N exceeds number of available values to select")
-    index   = sample(index, N)
-    xyz     = cellLayerFromIndex(R, index)
-    v       = layers_extractPoints(R, xyz)
-    x       = dplyr::tibble(
-                lon    = xyz$x,
-                lat    = xyz$y,
-                row    = xyz$row,
-                col    = xyz$col,
-                cell   = xyz$cell,
-                index  = index,
-                layer  = xyz$layer,
-                value  = v)
-    invisible(x)
-
+    index = sample(index, size = N, replace = FALSE)
+    x =  cellLayerFromIndex(R, index)
+    x$layer <- names(R)[x$layer]
+    v =  layers_extractPoints(R, x)
+    dplyr::bind_cols(x, v = v)
 }
 
-# layers_randomPoints_deprecated <- function(R, pts = NULL, N = 1000, M = 5){
+
+# layers_randomPoints_deprecated_1 <- function(R, pts = NULL, N = 1000, M = 5){
 #
 #     if (!inherits(R, 'BasicRaster')) stop("Input R must be a Raster* class")
 #     if (!is.null(pts)){
@@ -499,4 +446,144 @@ layers_randomPoints <- function(R, pts = NULL, N = 1000, M = 5){
 #         value = v[cell + (layer-1)*nc],
 #         stringsAsFactors = TRUE)
 #     invisible(x)
+# }
+
+
+
+# #' Select N non-NA random points from a mulitlayer Raster* object
+# #'
+# #' @export
+# #' @param R a multilayer Raster* object
+# #' @param pts xyz values for presence points [lon, lat, layer] - these
+# #'  locations are avoided when sampling. Ignored if NULL.   This must have
+# #'  either set of the following columns.  Note that layer (or z)
+# #'  may be either a layer index number or layer names.
+# #' \itemize{
+# #'      \item{'cell' and 'layer' (or 'z')}
+# #'      \item{'row', 'col' and 'layer' (or 'z')}
+# #'      \item{'lon', 'lat' and 'layer' (or 'z')}
+# #'      \item{'x', 'y' and 'layer' (or 'z')}
+# #'  }
+# #' @param N the number of points to select
+# #' @param M numeric, a multiplier to start with a selection of random points
+# #'          from which N non-NA and non-pts are selected.  M is multiplied by
+# #'          the total number of cells in the raster.
+# #' @return data.frame of sampled points with the following
+# #'  \itemize{
+# #'      \item{lon}
+# #'      \item{lat}
+# #'      \item{col}
+# #'      \item{row}
+# #'      \item{cell 2D matrix index}
+# #'      \item{index 3d array index}
+# #'      \item{layer}
+# #'      \item{value}
+# #'  }
+# layers_randomPoints_deprecated_2 <- function(R, pts = NULL, N = 1000, M = 0.1){
+#
+#     if (!inherits(R, 'BasicRaster')) stop("Input R must be a Raster* class")
+#     s = raster_shape(R)
+#     #> s
+#     #    nc         nr          n         nl          N
+#     #  2550       1880    4794000        808 3873552000
+#
+#     if (N > s[['N']])
+#         stop("number of random points requested, N, exceeds number of available cells")
+#
+#     nsamp <- round(M * s[['N']])
+#     if (N >= nsamp) nsamp = N * 2
+#     index   = sample(s[['N']], size = nsamp, replace = FALSE)
+#     xyz     = cellLayerFromIndex(R, index)
+#     v       = layers_extractPoints(R, xyz)
+#     vna     = is.na(v)
+#     if (all(vna))
+#         stop("all initial background points selected are NA")
+#     if (!is.null(pts)){
+#         pts     = vet_pts(pts)
+#         pts_idx = indexFromPts(R, pts)
+#         isna    = is.na(pts_idx)
+#         pts_idx = pts_idx[!isna]
+#         ix      = match(pts_idx, index)
+#         ixna    = is.na(ix)
+#         if (!all(ixna)){
+#             index[ix[!ixna]] <- NA
+#         }
+#     }
+#     if (any(vna)) index[vna] <- NA
+#     index <- index[!is.na(index)]
+#     if (length(index) == 0)
+#         stop("random selection of points produced all NAs")
+#     if (length(index) < N)
+#         stop("N exceeds number of available values to select")
+#     index   = sample(index, N)
+#     xyz     = cellLayerFromIndex(R, index)
+#     v       = layers_extractPoints(R, xyz)
+#     x       = dplyr::tibble(
+#                 lon    = xyz$x,
+#                 lat    = xyz$y,
+#                 row    = xyz$row,
+#                 col    = xyz$col,
+#                 cell   = xyz$cell,
+#                 index  = index,
+#                 layer  = xyz$layer,
+#                 value  = v)
+#     invisible(x)
+#
+# }
+
+
+# #' Perform binary dilation on a binary raster
+# #'
+# #' @export
+# #' @param x binary raster where the dilated portion has value of 1, all other
+# #'    cells have value 0
+# #' @param width numeric odd numbered kernal width
+# #' @param height numeric odd numbered kernal width
+# #' @param pad logical, if TRUE pad the input to resolve edge effects
+# #' @param padValue numeric value of pad
+# #' @return raster layer
+# raster_dilate <- function(x, width = 3, height = width, pad = TRUE, padvalue = 0){
+#
+#     k = matrix(1/(width[1] * height[1]), ncol = width[1], nrow = height[1])
+#
+#     ones        = x[] == 1
+#     zeroes      = !ones
+#
+#     x2          = raster::focal(x, f, pad = pad, padValue = padValue)
+#
+#     x2[ones]    = 1
+#     swath       = x2[]
+#     swath       = swath > 0 & swath < 1
+#
+#     x3          = x
+#
+#
+#
+# library(raster)
+# nr = 30
+# nc = 30
+# m = matrix(seq_len(nc*nr), ncol = nc, nrow = nr)
+# r = raster(upper.tri(m, diag = TRUE))
+# ocean   = r[] == 0
+# land    = !ocean
+#
+# fr = 5
+# fc = 5
+# f = matrix(1/(fr*fc), nrow = fr, ncol = fr)
+#
+# r2 = focal(r,f, pad = TRUE, padValue = 0)
+#
+# r2[land]    = 1
+# swath       = r2[]
+# swath       = swath > 0 & swath < 1
+# r3          = r
+# r3[]        = 1
+# r3[swath]   = 0
+#
+# s           = stack(r, r2, r3)
+# names(s)    = c("mask", "focal", "swath")
+# plot(s)
+#
+#
+#
 # }
