@@ -5,12 +5,14 @@
 \title{Convert a index (1... ncells*nlayers) into a multilayer raster to cell and
    layer coordinates}
 \usage{
-cellLayerFromIndex(R, index)
+cellLayerFromIndex(R, index, shape = raster_shape(R))
 }
 \arguments{
 \item{R}{brick or stack}
 
 \item{index}{vector of multilayer index coordinates}
+
+\item{shape}{the shape vector to operate with, by default computed on input R}
 }
 \value{
 a tibble of index, cell, col, row, x, y, and layer
