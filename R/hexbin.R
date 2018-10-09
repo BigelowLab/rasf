@@ -9,11 +9,13 @@
 #' @param fun character the function used to process the cell values
 #'    currently only 'mean', 'median', or 'count' (default)
 #' @param crs the projection string
+#' @param na.rm logical passed through to user's selected function
 #' @param ... further arguments for \code{hexbin::hexbin()}
 #' @return a sf data frame
 st_hexbin <- function(x, y, z,
                     fun = c('mean', 'count', 'median')[2],
                     crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0",
+                    na.rm = TRUE,
                     ...){
 
     stopifnot(all.equal(length(x), length(y), length(z)))
@@ -32,8 +34,8 @@ st_hexbin <- function(x, y, z,
         for (i in seq_along(cell)) {
             ix <- idx[[as.character(cell[i])]]
             v[i] <- switch(fun,
-                           "mean" = mean(xyz$z[ix], na.rm = na.rm),
-                           "median" = percentile(xyz$z[ix], probs = 0.5, na.rm = na.rm, names = FALSE)
+                           "mean" = mean(z[ix], na.rm = na.rm),
+                           "median" = median(z[ix], na.rm = na.rm)
                             )
         }
     } else {
