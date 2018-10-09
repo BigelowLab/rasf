@@ -17,10 +17,12 @@ Imports:
     nearth,
     magrittr,
     dplyr,
-    tibble
+    tibble,
+    hexbin
 Collate:
     bb.R
     celmap-package.R
+    hexbin.R
     nearth.R
     raster.R
     sp.R

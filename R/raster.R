@@ -371,7 +371,7 @@ layers_randomPoints <- function(R,
 
 
     if (!is.null(layers)) {
-        x = fuax_randomPoints(R, layers = layers, pts = pts,N = N, M = M)
+        x = faux_randomPoints(R, layers = layers, pts = pts,N = N, M = M)
         return(x)
     }
 
