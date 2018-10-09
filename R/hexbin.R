@@ -1,5 +1,6 @@
 #' Retrieve of set of hex-binned polygons for the given xyz data
 #'
+#' @export
 #' @seealso \href{https://www.rdocumentation.org/packages/hexbin/versions/1.29.0/topics/hexbin}{hexbin docs}
 #' @seealso \href{https://hexnet.org/content/hexagonal-geometry}{nice overview}
 #' @param x a vector of x-locations
@@ -14,6 +15,8 @@ st_hexbin <- function(x, y, z,
                     fun = c('mean', 'count', 'median')[2],
                     crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0",
                     ...){
+
+    stopifnot(all.equal(length(x), length(y), length(z)))
 
     fun <- tolower(fun[1])
 
