@@ -104,6 +104,32 @@ vet_pts <- function(pts){
 }
 
 
+#' Computer the range of values for Raster* objects
+#'
+#' @export
+#' @param x a Raster* class
+#' @param na.rm logical, if TRUE remove NAs
+#' @param collapse logical, if FALSE then a matrix is returned with two columns
+#'    which are vectors of \code{min} and \code{max} values for each layer.
+#'    If TRUE then a a two element vector of  \code{min} and \code{max} for all layers
+#'    is returned
+#' @return either a matrix of min and max values or a two element vector of
+#'    min and max
+raster_range <- function(x, na.rm = TRUE, collapse = TRUE){
+
+    mn <- raster::minValue(x)
+    mx <- raster::maxValue(x)
+
+    if (collapse[1]){
+        r <- c(min(mn, na.rm = na.rm), max(mx, na.rm = na.rm))
+    } else {
+        r <- cbind(mn, mx)
+        colnames(r) <- c("min", "max")
+        rownames(r) <- names(x)
+    }
+    r
+}
+
 #' Assemble a vector of raster dimension
 #'
 #' @export
