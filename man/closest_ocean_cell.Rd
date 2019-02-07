@@ -4,7 +4,8 @@
 \alias{closest_ocean_cell}
 \title{Determine the closest ocean pixel given [lon,lat] and a lut raster}
 \usage{
-closest_ocean_cell(x, lut = "/mnt/ecocast/coredata/obpg/world/lut_4km.grd")
+closest_ocean_cell(x,
+  lut = "/mnt/ecocast/coredata/obpg/world/lut_4km.grd")
 }
 \arguments{
 \item{x}{the data frame with lon and lat coordinates}

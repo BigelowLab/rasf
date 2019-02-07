@@ -266,10 +266,10 @@ cellLayerFromPts <- function(R, pts){
     return(cell)
 }
 
-#' Extract values from a multilayer Raster*
+#' Extract values from a Raster* object
 #'
 #' @export
-#' @param R a multilayer Raster* object
+#' @param R a single or multilayer Raster* object
 #' @param pts location info for points to be extracted. Must be a data frame
 #'  or matrix with either set of the following columns. Note that layer (or z)
 #'  may be either a layer index number or layer names.
@@ -283,8 +283,11 @@ cellLayerFromPts <- function(R, pts){
 layers_extractPoints <- function(R, pts){
 
     if (!inherits(R, 'BasicRaster')) stop("Input R must be a Raster* class")
-    nc <- as.numeric(raster::ncell(R))
+
     nl <- as.numeric(raster::nlayers(R))
+    if (nl == 1L) return(raster::extractPoints(R, pts))
+
+    nc <- as.numeric(raster::ncell(R))
     ny <- as.numeric(raster::nrow(R))
     nx <- as.numeric(raster::ncol(R))
 
@@ -317,11 +320,6 @@ layers_extractPoints <- function(R, pts){
         })
     v       <- unsplit(vv, layer, drop = FALSE)
 
-    #cell <- cellFromPts(R, pts)
-
-    #index <- cell + (layer-1) * nc
-
-    #raster::getValues(R)[index]
     unname(v)
 }
 

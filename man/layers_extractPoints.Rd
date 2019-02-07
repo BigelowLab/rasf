@@ -2,12 +2,12 @@
 % Please edit documentation in R/raster.R
 \name{layers_extractPoints}
 \alias{layers_extractPoints}
-\title{Extract values from a multilayer Raster*}
+\title{Extract values from a Raster* object}
 \usage{
 layers_extractPoints(R, pts)
 }
 \arguments{
-\item{R}{a multilayer Raster* object}
+\item{R}{a single or multilayer Raster* object}
 
 \item{pts}{location info for points to be extracted. Must be a data frame
  or matrix with either set of the following columns. Note that layer (or z)
@@ -23,5 +23,5 @@ layers_extractPoints(R, pts)
 a vector of values
 }
 \description{
-Extract values from a multilayer Raster*
+Extract values from a Raster* object
 }

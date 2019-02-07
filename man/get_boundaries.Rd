@@ -4,8 +4,8 @@
 \alias{get_boundaries}
 \title{Get a Spatial vector object by state or province name}
 \usage{
-get_boundaries(where = c("Maine", "New Brunswick", "Quebec", "New Hampshire"),
-  what = c("boundary50m", "boundary10m")[1])
+get_boundaries(where = c("Maine", "New Brunswick", "Quebec",
+  "New Hampshire"), what = c("boundary50m", "boundary10m")[1])
 }
 \arguments{
 \item{where}{names the states and or provinces, or group names such as 'GOM'}
