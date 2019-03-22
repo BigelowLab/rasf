@@ -9,7 +9,8 @@ get_proj_string = function(name = c('longlat', "lcc", "utm-19", "EPSG:3857", "al
         "EPSG:3857" = '+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs',
         "longlat" =  "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0",
         "utm-19" = "+proj=utm +zone=19 +datum=NAD83 +units=m +no_defs",
-        "lcc" = "+proj=lcc +lat_1=25 +lat_0=25 +lon_0=-95 +k_0=1 +x_0=0 +y_0=0 +a=6367470.21484375 +b=6367470.21484375 +units=km +no_defs")
+        "lcc" = "+proj=lcc +lat_1=25 +lat_0=25 +lon_0=-95 +k_0=1 +x_0=0 +y_0=0 +a=6367470.21484375 +b=6367470.21484375 +units=km +no_defs",
+        "daymet-lcc" = "+proj=lcc +lon_0=-100 +lat_0=42.5 +x_0=0 +y_0=0 +lat_1=25 +ellps=WGS84 +lat_2=45")
 
     switch(tolower(name[1]),
         'longlat' = PROJ[['longlat']],
@@ -17,6 +18,7 @@ get_proj_string = function(name = c('longlat', "lcc", "utm-19", "EPSG:3857", "al
         "utm-19" = PROJ[['utm-19']],
         'lcc' = PROJ[['lcc']],
         "epsg:3857" = PROJ[["EPSG:3857"]],
+        "daymet-lcc" = PROJ[["daymet-lcc"]],
         "all" = PROJ,
         paste('projection name not known:', name[1]))
 }
