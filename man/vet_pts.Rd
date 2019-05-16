@@ -2,7 +2,7 @@
 % Please edit documentation in R/raster.R
 \name{vet_pts}
 \alias{vet_pts}
-\title{Vet ponts to ensure uniform input}
+\title{Vet points to ensure uniform input}
 \usage{
 vet_pts(pts)
 }

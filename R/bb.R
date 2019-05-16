@@ -14,13 +14,15 @@
 #' }
 #' @param pad numeric one or two element pad to add to a bounding box,
 #'     default is NULL to skip
-#' @param form character, either numeric, extent, sf or sp
+#' @param form character, either "numeric", "extent", "sf", "sp",
+#'    "top-left-bottom-right" or "left-top-right-bottom"
 #' @param ... further arguments - likely proj_string for sp and sf outputs
 #' @return 4 element vector of [left, right, bottom, top], extent or SpatialPolygons object
 get_bb <- function(
     where = c('all', 'maine', 'gom', 'nwa', 'neac', 'native')[2],
     pad = NULL,
-    form = c("numeric", "extent", "sp", "sf")[1],
+    form = c("numeric", "extent", "sp", "sf", "left-top-right-bottom",
+             "top-left-bottom-right")[1],
     ...){
 
 
@@ -44,5 +46,7 @@ get_bb <- function(
         'extent'    = raster::extent(bb),
         'sp'        = bbox_to_SpatialPolygons(bb, ...),
         'sf'        = bbox_to_sf(bb, ...),
+        "left-top-right-bottom" = bb[c(1,4,2,3)],
+        "top-left-bottom-right" = bb[c(4,1,3,2)],
                       bb)
 }

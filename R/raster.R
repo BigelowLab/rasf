@@ -1,3 +1,54 @@
+#' Create a dummy raster mask for testing \code{make_ratser_lut}
+#'
+#' @export
+#' @param nc integer, number of columns
+#' @param nr integer, number of rows
+#' @return raster mask with NA values assigned to area to be masked
+make_dummy_mask <- function(nc = 10, nr = 10){
+    m <- matrix(seq_len(nc*nr), ncol = nc, nrow = nr, byrow = TRUE)
+    m[lower.tri(m)] <- NA
+    raster::raster(m)
+}
+
+#' Make a raster LUT which is essentially a lookup table that for a given
+#' location points to the nearest non-NA value in a mask.
+#'
+#' Each cell of a lut contains a cell address of the closest
+#' cell covered by a non-NA value in the input.  Obviously, cells already
+#' covered by non-NA will have it's original cell number.  Cells covered by
+#' NA in the input will have a cell number of the closest non-NA cell.
+#'
+#' @export
+#' @param x raster mask - where masked values are NA, unmasked values or not NA
+#' @return raster of cell addresses.  Where the input, R, had non-NA values the
+#'   cell addresses point to the input cell.  Where the input had NA valued cells,
+#'   the output cell addresses point to the nearest non-NA cells inthe input.
+make_raster_lut <- function(x = make_dummy_mask()){
+    # imagine a mask where land <- NA and water <- non-NA
+    # create a matrix with cell numbers (ordered by row top to bottom)
+    d <- dim(x)
+    allCell <- matrix(seq_len(d[1]*d[2]), d[1], d[2], byrow = TRUE)
+    # create raster of cell numbers and reassign missing values
+    R <- raster::raster(allCell, template = x)
+    isna <- is.na(x[])
+    # if none are NA, then we are done
+    if (!any(isna)) return(R)
+    R[isna] <- 0  # land
+    # convert to points and cells
+    landPts <- raster::rasterToPoints(R, function(x) x <= 0)[,c('x','y')]
+    landCell <- raster::cellFromXY(R, landPts)
+    waterPts <- raster::rasterToPoints(R, function(x) x > 0)[,c('x','y')]
+    # magic
+    ix <- RANN::nn2(waterPts, landPts, k = 1)
+    water <- waterPts[ix$nn.idx[,1],]
+    # compute the new cell values and assign
+    reassignedCell <- raster::cellFromXY(R, water)
+    R[landCell] <- reassignedCell
+    R
+}
+
+
+
 #' Determine the closest ocean pixel given [lon,lat] and a lut raster
 #'
 #' @export
@@ -72,7 +123,7 @@ grd_dim <- function(x){
 }
 
 
-#' Vet ponts to ensure uniform input
+#' Vet points to ensure uniform input
 #'
 #' The following are synonyms and definitions
 #' \itemize{
@@ -311,7 +362,7 @@ layers_extractPoints <- function(R, pts){
     if (!inherits(R, 'BasicRaster')) stop("Input R must be a Raster* class")
 
     nl <- as.numeric(raster::nlayers(R))
-    if (nl == 1L) return(raster::extractPoints(R, pts))
+    if (nl == 1L) return(raster::extract(R, pts))
 
     nc <- as.numeric(raster::ncell(R))
     ny <- as.numeric(raster::nrow(R))
@@ -480,5 +531,5 @@ faux_randomPoints <- function(R,
     index = sample(index, size = N, replace = FALSE)
     x =  cellLayerFromIndex(R, index, shape = s)
     x %>%
-        dplyr::mutate(layer = layers[layer], value = NA)
+        dplyr::mutate(layer = layers[.data$layer], value = NA)
 }

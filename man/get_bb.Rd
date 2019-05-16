@@ -5,7 +5,8 @@
 \title{Various bounding boxes for analyses or forecasts}
 \usage{
 get_bb(where = c("all", "maine", "gom", "nwa", "neac", "native")[2],
-  pad = NULL, form = c("numeric", "extent", "sp", "sf")[1], ...)
+  pad = NULL, form = c("numeric", "extent", "sp", "sf",
+  "left-top-right-bottom", "top-left-bottom-right")[1], ...)
 }
 \arguments{
 \item{where}{character 'native' (aka 'all' or 'world'), 'nwa', 'neac' etc
@@ -22,7 +23,8 @@ get_bb(where = c("all", "maine", "gom", "nwa", "neac", "native")[2],
 \item{pad}{numeric one or two element pad to add to a bounding box,
 default is NULL to skip}
 
-\item{form}{character, either numeric, extent, sf or sp}
+\item{form}{character, either "numeric", "extent", "sf", "sp",
+"top-left-bottom-right" or "left-top-right-bottom"}
 
 \item{...}{further arguments - likely proj_string for sp and sf outputs}
 }

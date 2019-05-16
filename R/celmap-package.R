@@ -17,4 +17,6 @@
 #' @docType package
 #' @name celmap
 #' @importFrom magrittr %>%
+#' @importFrom rlang .data
+#' @importFrom stats median
 NULL

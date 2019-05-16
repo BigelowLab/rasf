@@ -23,6 +23,51 @@ get_proj_string = function(name = c('longlat', "lcc", "utm-19", "EPSG:3857", "al
         paste('projection name not known:', name[1]))
 }
 
+#' Get a projection string
+#'
+#' @seealso \code{link{get_proj_string}}
+#' @export
+#' @param ... arguments for \code{link{get_proj_string}}
+#' @return a projection string
+get_crs <- function(...){
+    get_proj_string(...)
+}
+
+
+
+#' Transform locations in a tibble or data frame from one projection to another
+#'
+#' Elements of the input that are NA are returned as NA
+#'
+#' @export
+#' @param x tibble with columns lon and lat
+#' @param from_proj projection of the source coordinates
+#' @param to_proj projection of the source coordinates
+#' @param from_names string, the names of the x and y coords to project from c('lon', 'lat') default
+#' @param to_names string, the names of the x and y coords to project into c('x', 'y') default,
+#'        the if from_names is the same as to_names then replacement occurs
+#' @return updated tibble
+project_tibble <- function(x,
+    from_proj = get_proj_string('longlat'),
+    to_proj = get_proj_string('lcc'),
+    from_names = c('lon', 'lat'),
+    to_names = c("x", "y")){
+
+    ll <- x[,from_names]
+    ix <- apply(ll, 1, function(x) any(is.na(x)) )
+    input <- ll[!ix,]
+    sp::coordinates(input) <- from_names
+    sp::proj4string(input) <- from_proj
+    output <- sp::coordinates(sp::spTransform(input, to_proj))
+    ll[!ix, ] <- tibble::as_tibble(output)
+    colnames(ll) <- to_names
+    x[[to_names[[1]]]] <- ll[[to_names[1]]]
+    x[[to_names[[2]]]] <-  ll[[to_names[2]]]
+    x
+}
+
+
+
 #' Convert a 4-element bbox vector to a matrix of two columns (x and y)
 #'
 #' @export

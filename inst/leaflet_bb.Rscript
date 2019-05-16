@@ -1,0 +1,36 @@
+# draw the bounding boxes of the known regions
+
+library(leaflet)
+
+bb_poly = function(bb){
+    list(lon = bb[c(1,2,2,1,1)], lat = bb[c(3,3,4,4,3)])
+    }
+neac = bb_poly(celmap::get_bb("neac"))
+nwa = bb_poly(celmap::get_bb("nwa"))
+gom = bb_poly(celmap::get_bb("gom"))
+maine = bb_poly(celmap::get_bb("Maine"))
+
+
+leaflet() %>%
+    addTiles() %>%
+    addPolygons(lng = nwa$lon, lat = nwa$lat,
+                col = 'blue',
+                fill = FALSE) %>%
+    addLabelOnlyMarkers(lng = max(nwa$lon), lat = max(nwa$lat),
+                label = "NWA",
+                labelOptions = labelOptions(noHide = TRUE, direction = 'right') )  %>%
+    addPolygons(lng = neac$lon, lat = neac$lat,
+                col = 'orange', fill = FALSE) %>%
+    addLabelOnlyMarkers(lng = max(neac$lon), lat = max(neac$lat),
+                        label = "NEAC",
+                        labelOptions = labelOptions(noHide = TRUE, direction = 'right')) %>%
+    addPolygons(lng = gom$lon, lat = gom$lat,
+                col = 'gray', fill = FALSE) %>%
+    addLabelOnlyMarkers(lng = max(gom$lon), lat = max(gom$lat),
+                        label = "GoM",
+                        labelOptions = labelOptions(noHide = TRUE, direction = 'right')) %>%
+    addPolygons(lng = maine$lon, lat = maine$lat,
+                col = 'purple', fill = FALSE) %>%
+    addLabelOnlyMarkers(lng = max(maine$lon), lat = max(maine$lat),
+                        label = "Maine",
+                        labelOptions = labelOptions(noHide = TRUE, direction = 'right'))
