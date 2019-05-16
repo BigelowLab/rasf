@@ -349,7 +349,8 @@ cellLayerFromPts <- function(R, pts){
 #' @param R a single or multilayer Raster* object
 #' @param pts location info for points to be extracted. Must be a data frame
 #'  or matrix with either set of the following columns. Note that layer (or z)
-#'  may be either a layer index number or layer names.
+#'  may be either a layer index number or layer names. If 'cell' is present in the
+#'  input then [x or lon] and [y or lat] are ignored.
 #' \itemize{
 #'      \item{'cell' and 'layer' (or 'z')}
 #'      \item{'row', 'col' and 'layer' (or 'z')}
@@ -377,15 +378,28 @@ layers_extractPoints <- function(R, pts){
     iz <- which(nm %in% c("layer", "z"))[1]
     if (length(iz) == 0) stop("pts must have 'layer' or 'z' column")
     layer <- pts[,iz]
-    #if (is.character(layer)) layer <- match(layer, names(R))
 
-    ix <- which(nm %in% c("x", "lon"))[1]
-    if (length(ix) == 0) stop("pts must have 'x' or 'lon' column")
+    ic <- which(nm %in% "cell")
+    if (length(ic) > 0){
+        # if the user provides 'cell' then use that first
+        xy <- raster::xyFromCell(R, pts[[ic[[1]]]])
+        pts <- data.frame(
+                x = xy[,1],
+                y = xy[,2],
+                layer = pts[,iz],
+                stringsAsFactors = FALSE)
+        ix <- 1
+        iy <- 2
+        iz <- 3
+    } else {
+        # otherwise we must have [x or lon] and [y or lat]
+        ix <- which(nm %in% c("x", "lon"))[1]
+        if (length(ix) == 0) stop("pts must have 'x' or 'lon' column")
 
-    iy <- which(nm %in% c("y", "lat"))[1]
-    if (length(iy) == 0) stop("pts must have 'y' or 'lat' column")
+        iy <- which(nm %in% c("y", "lat"))[1]
+        if (length(iy) == 0) stop("pts must have 'y' or 'lat' column")
+    }
 
-    #flayer  <- factor(layer)
     pp      <- split(pts, layer)
     nmR     <- names(R)
     vv      <- sapply(names(pp),
