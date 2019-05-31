@@ -53,16 +53,25 @@ project_tibble <- function(x,
     from_names = c('lon', 'lat'),
     to_names = c("x", "y")){
 
-    ll <- x[,from_names]
+    #ll <- x[,from_names]
+    ll <- x %>% dplyr::select(from_names)
     ix <- apply(ll, 1, function(x) any(is.na(x)) )
-    input <- ll[!ix,]
+    input <- ll %>% filter(!ix)
     sp::coordinates(input) <- from_names
     sp::proj4string(input) <- from_proj
     output <- sp::coordinates(sp::spTransform(input, to_proj))
     ll[!ix, ] <- tibble::as_tibble(output)
     colnames(ll) <- to_names
-    x[[to_names[[1]]]] <- ll[[to_names[1]]]
-    x[[to_names[[2]]]] <-  ll[[to_names[2]]]
+    if (tibble::has_name(x, to_names[1])) {
+       x[[to_names[[1]]]] <- ll[[to_names[1]]]
+    } else {
+        x <- x %>% tibble::add_column(!!to_name[1] := ll[[to_names[1]]])
+    }
+    if (tibble::has_name(x, to_names[2])) {
+        x[[to_names[[2]]]] <- ll[[to_names[2]]]
+    } else {
+        x <- x %>% tibble::add_column(!!to_name[2] := ll[[to_names[2]]])
+    }
     x
 }
 

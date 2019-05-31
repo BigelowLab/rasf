@@ -11,7 +11,8 @@ layers_extractPoints(R, pts)
 
 \item{pts}{location info for points to be extracted. Must be a data frame
  or matrix with either set of the following columns. Note that layer (or z)
- may be either a layer index number or layer names.
+ may be either a layer index number or layer names. If 'cell' is present in the
+ input then [x or lon] and [y or lat] are ignored.
 \itemize{
      \item{'cell' and 'layer' (or 'z')}
      \item{'row', 'col' and 'layer' (or 'z')}

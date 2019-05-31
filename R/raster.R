@@ -34,6 +34,7 @@ make_raster_lut <- function(x = make_dummy_mask()){
     # if none are NA, then we are done
     if (!any(isna)) return(R)
     R[isna] <- 0  # land
+    R[!isna] <- 1 # water
     # convert to points and cells
     landPts <- raster::rasterToPoints(R, function(x) x <= 0)[,c('x','y')]
     landCell <- raster::cellFromXY(R, landPts)
