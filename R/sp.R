@@ -1,3 +1,35 @@
+#' Convert bounding box [0,360] longitudes to [-180, 180]
+#'
+#' Bounding boxes are 4 element vectors of [left, right, bottom, top]
+#'
+#' @export
+#' @param x numeric bounding box vector, no check is done for being withing 0,360 range
+#' @return numeric bounding box vector
+to180BB <- function(x) {x[1:2] <- to180(x[1:2]) ; x}
+
+#' Convert [-180,180] bounding box longitudes to [0,360]
+#'
+#' Bounding boxes are 4 element vectors of [left, right, bottom, top]
+#'
+#' @export
+#' @param x numeric bounding box vector, no check is done for being withing 0,360 range
+#' @return numeric bounding box vector
+to360BB <- function(x) {x[1:2] <- to360(x[1:2]) ; x}
+
+#' Convert [0,360] longitudes to [-180, 180]
+#'
+#' @export
+#' @param x numeric vector, no check is done for being withing 0,360 range
+#' @return numeric vector
+to180 <- function(x) {ix <- x > 180 ; x[ix] <- x[ix]-360; x}
+
+#' Convert [-180,180] longitudes to [0,360]
+#'
+#' @export
+#' @param x numeric vector, no check is done for being withing 0,360 range
+#' @return numeric vector
+to360 <- function(x) {ix <- x < 0 ; x[ix] <- x[ix]+ 360; x}
+
 #' Get one of the common projection strings
 #'
 #' @export
