@@ -9,10 +9,10 @@ bbox_to_sf(bb = get_bb("gom"), proj_string = get_proj_string())
 \arguments{
 \item{bb}{a 4-element numeric vector of left, bottom, right, top coordinates}
 
-\item{proj_string}{a proj4string suitable to pass to \code{sp::CRS()}}
+\item{proj_string}{a proj4string suitable to pass to \code{sf::st_crs()}}
 }
 \value{
-a SpatialPolygons object
+a sf:bbox object
 }
 \description{
 Convert a 4-element bbox vector to a sf::st_bbox object

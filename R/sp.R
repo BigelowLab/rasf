@@ -179,11 +179,27 @@ bbox_to_SpatialPolygonsDataFrame <- function(bb = get_bb("gom"),...){
 #'
 #' @export
 #' @param bb a 4-element numeric vector of left, bottom, right, top coordinates
-#' @param proj_string a proj4string suitable to pass to \code{sp::CRS()}
-#' @return a SpatialPolygons object
+#' @param proj_string a proj4string suitable to pass to \code{sf::st_crs()}
+#' @return a sf:bbox object
 bbox_to_sf <- function(bb = get_bb("gom"),
     proj_string = get_proj_string()){
 
     sf::st_bbox(c(xmin = bb[1], xmax = bb[2], ymin = bb[3], ymax = bb[4]),
                 crs = sf::st_crs(proj_string))
+}
+
+#' Convert a 4-element bbox vector to a sf::POLYGON simple feature object
+#'
+#' @export
+#' @param bb a 4-element numeric vector of left, bottom, right, top coordinates
+#' @param proj_string a proj4string suitable to pass to \code{sf::st_crs()}
+#' @return a sf:sf with a single POLYGON geometry object
+bbox_to_sfPOLYGON <- function(bb = get_bb("gom"),
+    proj_string = get_proj_string()){
+
+
+    p <- sf::st_polygon(x = list(cbind(bb[c(1,2,2,1,1)], bb[c(3,3,4,4,3)]))) %>%
+        sf::st_sfc(crs = proj_string) %>%
+        sf::st_sf()
+
 }
