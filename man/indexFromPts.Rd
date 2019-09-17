@@ -2,18 +2,18 @@
 % Please edit documentation in R/raster.R
 \name{indexFromPts}
 \alias{indexFromPts}
-\title{Compute array indices from points}
+\title{Compute array indices from points - points are in the raster's CRS system}
 \usage{
-indexFromPts(R, pts)
+indexFromPts(pts, x)
 }
 \arguments{
-\item{R}{brick or stack}
+\item{pts}{location info for points - see \code{vetPts()}}
 
-\item{pts}{location info for points - see \code{vet_pts()}}
+\item{x}{layer, brick or stack}
 }
 \value{
 vector of array indices as if the raster were a 3d array
 }
 \description{
-Compute array indices from points
+Compute array indices from points - points are in the raster's CRS system
 }

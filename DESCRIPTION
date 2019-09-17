@@ -1,35 +1,19 @@
-Package: celmap
+Package: rasf
 Maintainer: Ben Tupper <btupper@bigelow.org>
 Author: Ben Tupper <btupper@bigelow.org>
-URL: https://github.com/bigelowlab/celmap
+URL: https://github.com/bigelowlab/rasf
 Version: 0.1
 License: MIT + file LICENSE
 Title: celmap
-Description: Tools for working with Computational Ecology Lab map data including Natural Earth,
-  a repository for common bounding boxes and set of tools for simple spatial operations.
+Description: Tools for working with rasters and simple features.
 Encoding: UTF-8
 Depends:
     R (>= 3.0)
 Imports:
     stats,
-    sp,
     sf,
-    dismo,
     raster,
-    nearth,
-    magrittr,
     dplyr,
     tibble,
-    hexbin,
-    RANN,
-    geosphere,
-    readr,
     rlang
-Collate:
-    bb.R
-    celmap-package.R
-    hexbin.R
-    nearth.R
-    raster.R
-    sp.R
 RoxygenNote: 6.1.1
