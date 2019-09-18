@@ -3,7 +3,7 @@
 \name{volcano_raster}
 \alias{volcano_raster}
 \title{Retrieve a raster of Auckland’s Maunga Whau volcano topography.  Adapted from
-USGS-R inlmisc package}
+USGS-R inlmisc package.}
 \usage{
 volcano_raster(indexed = FALSE)
 }
@@ -15,7 +15,7 @@ RasterLayer
 }
 \description{
 Retrieve a raster of Auckland’s Maunga Whau volcano topography.  Adapted from
-USGS-R inlmisc package
+USGS-R inlmisc package.
 }
 \seealso{
 \url{https://waterdata.usgs.gov/blog/inlmiscmaps/}

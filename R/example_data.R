@@ -1,5 +1,5 @@
 #' Retrieve a raster of Auckland’s Maunga Whau volcano topography.  Adapted from
-#' USGS-R inlmisc package
+#' USGS-R inlmisc package.
 #'
 #' @seealso \url{https://waterdata.usgs.gov/blog/inlmiscmaps/}
 #' @seealso \url{https://CRAN.R-project.org/package=inlmisc}
@@ -83,4 +83,18 @@ volcano_polygon <- function(){
                crs = "+init=epsg:27200")
 }
 
+#' Generate a dataset of points for use with \code{\link{st_hexbin}}
+#'
+#' @export
+#' @param n the number of points to generate
+#' @param bb 4 element numeric of bounding box [left, right, bottom, top]
+hexbin_points <- function( n = 1000, bb = c(-72, -63, 39, 46)){
+  bb = c(-72, -63, 39, 46)
+  xr <- range(bb[1:2])
+  yr <- range(bb[3:4])
+   dplyr::tibble(
+     x = runif(n, min = bb[1], max = bb[2]),
+     y = runif(n, min = bb[3], max = bb[4]),
+     z = runif(n, min = 0, max = 1))
+}
 

@@ -15,5 +15,7 @@ Imports:
     raster,
     dplyr,
     tibble,
-    rlang
+    rlang,
+    hexbin,
+    geosphere
 RoxygenNote: 6.1.1
