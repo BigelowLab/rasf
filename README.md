@@ -112,7 +112,7 @@ y <- project_table(x,
                    from_crs = "+init=epsg:4326",
                    to_crs = "+init=epsg:32619",
                    to_names = c("false_easting", "false_northing"))
-# lon lat false_easting false_northing
+#   lon lat false_easting false_northing
 # 1 -72  39      240199.8        4321059
 # 2 -63  46      964564.1        5111577
 ```
