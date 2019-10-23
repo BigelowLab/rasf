@@ -41,7 +41,7 @@ randomPts <- function(x,
                       na.rm = FALSE,
                       pts = NULL,
                       polygon = NULL){
-
+  if (!is_raster(x)) stop("Input x must be a Raster* class")
   shape <- raster_dim(x)
 
   if (!is.null(polygon)){
@@ -83,9 +83,10 @@ randomPts <- function(x,
         dplyr::filter(!is.na(.data$value))
     }
     if (!is.null(pts)){
+      if (inherits(pts, 'sf')) pts <- pts %>% sf::st_drop_geometry()
       idx <- indexFromPts(pts, x)
       loc <- loc %>%
-        dplyr::filter(!(idx %in% .data$index))
+        dplyr::filter(!(.data$index %in% idx))
     }
     replace <- nrow(loc) < n
     if (replace){
@@ -114,6 +115,7 @@ randomPts <- function(x,
 #' @return a tibble of x, y and layer
 vetPts <- function(pts){
 
+  if (inherits(pts, 'sf')) pts <- pts %>% sf::st_drop_geometry()
   if (!(is.data.frame(pts) || is.matrix(pts)))
     stop("pts must be data.frame or matrix")
   if (inherits(pts, "matrix") || inherits(pts, 'tbl_df'))
@@ -159,6 +161,7 @@ vetPts <- function(pts){
 #' raster_dim(slog)
 #' }
 raster_dim <- function(x){
+  if (!is_raster(x)) stop("Input x must be a Raster* class")
   nrow = as.numeric(raster::nrow(x))
   ncol = as.numeric(raster::ncol(x))
   ncell  = as.numeric(raster::ncell(x))
@@ -179,7 +182,7 @@ raster_dim <- function(x){
 #' @return either a matrix of min and max values or a two element vector of
 #'    min and max
 raster_range <- function(x, na.rm = TRUE, collapse = TRUE){
-
+  if (!is_raster(x)) stop("Input x must be a Raster* class")
   mn <- raster::minValue(x)
   mx <- raster::maxValue(x)
 
@@ -203,6 +206,7 @@ raster_range <- function(x, na.rm = TRUE, collapse = TRUE){
 #' @param x Raster* layer, brick or stack
 #' @return a tibble of index, cell, col, row, x, y, and layer
 xyCellLayerFromIndex <- function(index, x){
+  if (!is_raster(x)) stop("Input x must be a Raster* class")
   shape <- raster_dim(x)
   layer <- ((index-1) %/% shape[['ncell']]) + 1
   cell  <- index - ((layer - 1) * shape[['ncell']])
@@ -222,7 +226,7 @@ xyCellLayerFromIndex <- function(index, x){
 #' @param x Raster* layer, brick or stack
 #' @return cellLayer with index added
 indexFromCellLayer <- function(cellLayer, x){
-
+  if (!is_raster(x)) stop("Input x must be a Raster* class")
   if (!all(c("cell", "layer") %in% names(cellLayer))){
     stop("cell layer must contain both cell and layer")
   }
@@ -251,7 +255,8 @@ indexFromCellLayer <- function(cellLayer, x){
 #' @param x layer, brick or stack
 #' @return vector of array indices as if the raster were a 3d array
 indexFromPts <- function(pts, x ){
-  if (!inherits(x, 'BasicRaster')) stop("Input x must be a Raster* class")
+  if (inherits(pts, 'sf')) pts <- pts %>% sf::st_drop_geometry()
+  if (!is_raster(x)) stop("Input x must be a Raster* class")
   shape <- raster_dim(x)
   pts <- vetPts(pts)
   col   <- raster::colFromX(x, pts$x)
@@ -287,10 +292,11 @@ indexFromPts <- function(pts, x ){
 #' @return a vector of values
 extractPts <- function(pts, x){
 
-  if (!inherits(x, 'BasicRaster')) stop("Input x must be a Raster* class")
+  if (!is_raster(x)) stop("Input x must be a Raster* class")
   shape <- raster_dim(x)
   if (shape[["nlayer"]] == 1) return(raster::extract(x, pts))
 
+  if (inherits(pts, 'sf')) pts <- pts %>% sf::st_drop_geometry()
   if (!inherits(pts, "tbl_df")) {
     pts <- try(dplyr::as_tibble(pts))
     if (inherits(pts, 'try-error')){
@@ -341,9 +347,9 @@ extractPts <- function(pts, x){
                     function(i){
                       j <- as.integer(i)
                       if (j %in% layers){
-                        r <- raster::extract(x[[j]], pp[[j]][,c(ix, iy), drop = FALSE])
+                        r <- raster::extract(x[[j]], pp[[i]][,c(ix, iy), drop = FALSE])
                       } else {
-                        r <- rep(NA_real_, nrow(pp[[j]]))
+                        r <- rep(NA_real_, nrow(pp[[i]]))
                       }
                       r
                       })
@@ -353,3 +359,16 @@ extractPts <- function(pts, x){
 }
 
 
+#' Test if an object is RasterLayer, RasterStack or RasterBrick
+#'
+#' @export
+#' @param x object to test
+#' @param klass character a vector of allowed class types.  Use this to narrow
+#'   the test, say for a brick by setting klasses to 'RasterBrick'
+#' @return logical, TRUE if the object inherits from the specified class
+is_raster <- function(x,
+  klass = "BasicRaster"){
+
+  inherits(x, klass)
+
+}
