@@ -256,7 +256,7 @@ indexFromPts <- function(pts, x ){
   pts <- vetPts(pts)
   col   <- raster::colFromX(x, pts$x)
   row   <- raster::rowFromY(x, pts$y)
-  layer   <- pts$layer
+  z   <- pts$layer
   if (is.character(z)) {
     nm <- names(x)
     if (is.null(nm)) stop("if layer is character then x must have layer names")
