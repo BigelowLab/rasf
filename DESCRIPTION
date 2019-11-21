@@ -4,7 +4,7 @@ Author: Ben Tupper <btupper@bigelow.org>
 URL: https://github.com/bigelowlab/rasf
 Version: 0.1
 License: MIT + file LICENSE
-Title: celmap
+Title: rasf
 Description: Tools for working with rasters and simple features.
 Encoding: UTF-8
 Depends:
@@ -17,5 +17,6 @@ Imports:
     tibble,
     rlang,
     hexbin,
-    geosphere
+    geosphere,
+    geometry
 RoxygenNote: 6.1.1
