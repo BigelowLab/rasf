@@ -35,24 +35,28 @@ points_to_mesh <- function(x, varname = NULL, fun = mean, ...){
 	stopifnot(is_sf_geometry(x,  "sfc_POINT"))
   xy <- sf::st_coordinates(x)   # n xy locations
   d <- geometry::delaunayn(xy)  # m polygons x 3 nodes
-  iv <- c(1,2,3,1)  # vertex index wraps
+  d <- cbind(d, d[,1])          # wrap the first point
+  #iv <- c(1,2,3,1)             # vertex index wraps
   g <- lapply(seq_len(nrow(d)),
-  	function(i, xy = NULL, del = NULL, rowindex = NULL){
-  			sf::st_polygon(list(xy[del[i, rowindex],]))
-  	}, xy = xy, del = d, rowindex = iv)
+  	function(i, xy = NULL, del = NULL){
+  			sf::st_polygon(list(xy[del[i,],]))
+  	}, xy = xy, del = d)
 	mesh <- dplyr::tibble(p1 = d[,1], p2 = d[,2], p3 = d[,3]) %>%
-		dplyr::mutate( geometry = g) %>%
+		dplyr::mutate(geometry = g) %>%
     sf::st_sf(sf_column_name = "geometry", crs = sf::st_crs(x)$proj4string)
 
   if (!is.null(varname)){
   	stopifnot(all(varname %in% colnames(x)))
+  	d <- d[,1:3]  # revert to the original m polygons by 3 nodes
+  	len <- seq_len(nrow(mesh))  # compute this just once
 		for (var in varname){
+		  vals <- x[[var]]
+			v <- sapply(len,
+                  function(i){
+                    fun(vals[d[i,]], ...)
+                  })
 			mesh <- mesh %>%
-      	tibble::add_column(!!var :=
-                    sapply(seq_len(nrow(mesh)),
-                           function(i){
-                             fun((x %>% dplyr::slice(d[i,]))[[var]], ...)
-                           }), .before = "p1")
+      	tibble::add_column(!!var := v, .before = "p1")
 		}
   }
   mesh
