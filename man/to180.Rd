@@ -15,3 +15,6 @@ numeric vector
 \description{
 Convert [0,360] longitudes to [-180, 180]
 }
+\seealso{
+\url{https://gis.stackexchange.com/questions/201789/verifying-formula-that-will-convert-longitude-0-360-to-180-to-180/201793}
+}

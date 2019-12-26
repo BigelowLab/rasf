@@ -2,18 +2,20 @@
 % Please edit documentation in R/bb.R
 \name{bb_to_polygon}
 \alias{bb_to_polygon}
-\title{Convert a 4-element bounding box vector to a polygon simple feature object}
+\title{Convert a 4-element bounding box vector to a polygon simple feature object.}
 \usage{
 bb_to_polygon(bb = c(-72, -63, 39, 46), crs = "+init=epsg:4326")
 }
 \arguments{
-\item{bb}{a 4-element numeric vector of left, right, bottom and top coordinates}
+\item{bb}{a 4-element numeric vector of left, right, bottom and top
+coordinates or a list of the same.}
 
 \item{crs}{character, the coordinate reference system}
 }
 \value{
-a simple feature with a POLYGON
+a simple feature with a POLYGON or multiple feature object
 }
 \description{
-Convert a 4-element bounding box vector to a polygon simple feature object
+Alternatively, input a list of bounding boxes, each is transformed into one
+feature in a multi-feature object.
 }
