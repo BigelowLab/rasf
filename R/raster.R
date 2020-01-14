@@ -372,3 +372,44 @@ is_raster <- function(x,
   inherits(x, klass)
 
 }
+
+
+#' Retrieve metadata about one or more raster files
+#'
+#' This is a wrapper around \code{\link[rgdal]{GDALinfo}}
+#'
+#' @export
+#' @param x character, one or more filenames (.tiff, .grd, etc.)
+#' @return table (tibble) of GDAL metadata
+#' \itemize{
+#'   \item{rows integer }
+#'   \item{columns integer }
+#'   \item{bands integer }
+#'   \item{ll.x numeric }
+#'   \item{ll.y numeric }
+#'   \item{res.x numeric }
+#'   \item{res.y numeric }
+#'   \item{oblique.x numeric }
+#'   \item{oblique.y numeric }
+#'   \item{crs character }
+#' }
+raster_fileinfo <- function(x){
+
+  stopifnot(all(file.exists(x)))
+
+  fi <- lapply(x,
+    function(f){
+      x <- rgdal::GDALinfo(f, returnStats = FALSE, silent = TRUE)
+      rbind(c(x[seq_len(length(x))], crs = attr(x, "projection")))
+    })
+  dplyr::as_tibble(do.call(rbind, fi)) %>%
+    dplyr::mutate(rows = as.integer(.data$rows),
+                  columns = as.integer(.data$columns),
+                  bands = as.integer(.data$bands),
+                  ll.x = as.numeric(.data$ll.x),
+                  ll.y = as.numeric(.data$ll.y),
+                  res.x = as.numeric(.data$res.x),
+                  res.y = as.numeric(.data$res.y),
+                  oblique.x = as.numeric(.data$oblique.x),
+                  oblique.y = as.numeric(.data$oblique.y))
+}
