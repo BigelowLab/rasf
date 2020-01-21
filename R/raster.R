@@ -1,3 +1,124 @@
+#' Create a dummy raster mask for testing \code{make_ratser_lut}
+#'
+#' @export
+#' @param nc integer, number of columns
+#' @param nr integer, number of rows
+#' @return raster mask with NA values assigned to area to be masked
+make_dummy_mask <- function(nc = 10, nr = 10){
+  m <- matrix(seq_len(nc*nr), ncol = nc, nrow = nr, byrow = TRUE)
+  m[lower.tri(m)] <- NA
+  raster::raster(m)
+}
+
+#' Create a dummy raster stack for testing.
+#'
+#' @export
+#' @param nc integer, number of columns
+#' @param nr integer, number of rows
+#' @param nl integer, number of layers
+#' @return raster stack with some NA cells
+make_dummy_stack <- function(nc = 10, nr = 10, nl = 10){
+  m <- make_dummy_mask(nc = nc, nr = nr)
+  n <- nc * nr
+  mm <- lapply(seq_len(nl),
+               function(i) {
+                 m + ((i-1) * n)
+               })
+  raster::stack(mm)
+}
+
+#' Make dummy points set for a given raster
+#'
+#' @export
+#' @param R RasterLayer, Stack or Brick
+#' @param N integer, the number of points to generate
+#' @param M numeric, a multiplier to start with a selection of random points
+#'          from which N are selected.  Ignored if na.rm is \code{FALSE}.
+#' @param na.rm logical, if TRUE then avoid NA cells
+#' @return tibble of point location info ala \code{\link{extractPts}}
+make_dummy_points <- function(R = make_dummy_stack(), N = 10, M = 2, na.rm = TRUE){
+
+  s <- raster_dim(R)
+  if (na.rm){
+    index = sample(s["nindex"], N * M, replace = FALSE)
+    #pts <- cellLayerFromIndex(R, index)
+    pts <- xyCellLayerFromIndex(index, R)
+    #v <- layers_extractPoints(R, pts)
+    v <- extractPts(pts, R)
+    pts <- pts %>%
+      dplyr::filter(!is.na(v)) %>%
+      dplyr::sample_n(N)
+  } else {
+    index = sample(s["nindex"], N, replace = FALSE)
+    pts <- xyCellLayerFromIndex(index, R)
+  }
+  pts
+}
+
+
+#' Make a raster LUT which is essentially a lookup table that for a given
+#' location points to the nearest non-mask value in a mask.
+#'
+#' Each cell of a lut contains a cell address of the closest
+#' cell covered by a non-mask value in the input.  Obviously, cells already
+#' covered by non-mask will have it's original cell number.  Cells covered by
+#' \code{mask_value} in the input will have a cell number of the closest
+#' non-mask cell.
+#'
+#' Note this assigns the closest cell value which is a 1-d index into 2-d space.
+#'
+#' @export
+#' @param x raster mask
+#' @param mask_value numeric the value of masked areas, by default NA
+#' @return raster of cell addresses.  Where the input, R, had non-mask values the
+#'   cell addresses point to the input cell.  Where the input had mask-valued cells,
+#'   the output cell addresses point to the nearest non-mask cells in the input.
+make_raster_lut <- function(x = make_dummy_mask(), mask_value = NA){
+
+  # create a matrix with cell numbers (ordered by row top to bottom)
+  d <- dim(x)
+  allCell <- matrix(seq_len(d[1]*d[2]), d[1], d[2], byrow = TRUE)
+  # create raster of cell numbers and reassign missing values
+  R <- raster::raster(allCell, template = x)
+  if (is.na(mask_value[1])){
+    isna <- is.na(x[])
+  } else {
+    isna <- x[] == mask_value[1]
+  }
+  # if none are NA, then we are done
+  if (!any(isna)) return(R)
+  R[isna] <- 0  # masked
+  R[!isna] <- 1 # unmasked
+  # convert to points and cells
+  maskedPts <- raster::rasterToPoints(R, function(x) x <= 0)[,c('x','y')]
+  maskedCell <- raster::cellFromXY(R, maskedPts)
+  okPts <- raster::rasterToPoints(R, function(x) x > 0)[,c('x','y')]
+  # magic
+  ix <- RANN::nn2(okPts, maskedPts, k = 1)
+  ok <- okPts[ix$nn.idx[,1],]
+  # compute the new cell values and assign
+  reassignedCell <- raster::cellFromXY(R, ok)
+  R[maskedCell] <- reassignedCell
+  R
+}
+
+
+
+#' Determine the closest non-NA pixel given [lon,lat] and a lut raster
+#'
+#' @export
+#' @param x the data frame with lon and lat coordinates
+#' @param lut the raster look-up with precomputed closest non-NA cells
+#' @return tibble with lon and lat columns
+closest_available_cell <- function(x, lut = make_raster_lut()){
+  reassignCell <- raster::extract(lut, x)
+  xy <- raster::xyFromCell(lut, reassignCell)
+  dplyr::tibble(lon = xy[,1], lat = xy[,2])
+}
+
+
+
+
 #
 # if polygon
 #    pool =  all points for all layers in polygon

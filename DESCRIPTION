@@ -19,5 +19,6 @@ Imports:
     rlang,
     hexbin,
     geosphere,
-    geometry
+    geometry,
+    RANN
 RoxygenNote: 6.1.1
