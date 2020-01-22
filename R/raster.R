@@ -116,9 +116,6 @@ closest_available_cell <- function(x, lut = make_raster_lut()){
   dplyr::tibble(lon = xy[,1], lat = xy[,2])
 }
 
-
-
-
 #
 # if polygon
 #    pool =  all points for all layers in polygon
@@ -176,7 +173,9 @@ randomPts <- function(x,
     nindex <- nlayers * shape[['ncell']]
     index <- c(pcell, as.vector(sapply(nindex, function(i) i + pcell)))
     loc <- xyCellLayerFromIndex(index, x)
-    loc$value <- extractPts(loc, x)
+    values <- extractPts(loc, x)
+    loc <- loc %>%
+      dplyr::mutate(value = values)
     if (na.rm){
       loc <- loc %>%
         dplyr::filter(!is.na(.data$value))
@@ -198,7 +197,9 @@ randomPts <- function(x,
   } else {
     index <- sample(shape[["nindex"]], n*m, replace = FALSE)
     loc <- xyCellLayerFromIndex(index, x)
-    loc$value <- extractPts(loc, x)
+    values <- extractPts(loc, x)
+    loc <- loc %>%
+    	dplyr::mutate(value = values)
     if (na.rm){
       loc <- loc %>%
         dplyr::filter(!is.na(.data$value))
