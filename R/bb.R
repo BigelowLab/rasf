@@ -8,6 +8,7 @@
 to180BB <- function(x) {
 	x[1:2] <- to180(x[1:2])
 	if (identical(x[1], 180)) x[1] <- -180
+	if (identical(x[2], -180)) x[2] <- 180
 	x
 }
 
@@ -31,7 +32,10 @@ to360BB <- function(x) {
 #' @export
 #' @param x numeric vector, no check is done for being withing [0, 360] range
 #' @return numeric vector
-to180 <- function(x) {((x + 180) %% 360) - 180}
+to180 <- function(x) {
+  x <- ((x + 180) %% 360) - 180
+  x
+}
 
 #' Convert [-180,180] longitudes to [0, 360]
 #'
@@ -89,6 +93,7 @@ bb_to_polygon <- function(bb = c(-72, -63, 39, 46),
 
 #' Split a bounding box into two at \code{at}
 #'
+#' @export
 #' @param bb numeric, 4 element bouding box of left, right, bottom and top coordinates
 #' @param at numeric, longitude to split around
 #' @return list of one or two bounding box vectors
@@ -107,6 +112,7 @@ bb_split <- function(bb = c(-170,50,-60,60),
 
 #' Test if a blunding box straddles a longitude
 #'
+#' @export
 #' @param bb numeric, 4 element bouding box
 #' @param at numeric, longitude to split around
 #' @return logical

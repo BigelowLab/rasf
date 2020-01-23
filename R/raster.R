@@ -535,3 +535,48 @@ raster_fileinfo <- function(x){
                   oblique.x = as.numeric(.data$oblique.x),
                   oblique.y = as.numeric(.data$oblique.y))
 }
+
+
+#' A wrapper around \code{\link[raster]{rotate}} that provides rotation from
+#' [-180,180] to [0,360].
+#'
+#' @export
+#' @param x raster, a raster object with global coverage
+#' @param inverse logical if FALSE then pass all of the arguments to
+#'        \code{\link[raster]{rotate}}.  If FALSE then transform from [-180,180]
+#'        to [0,360]
+#' @param adjust_origin logical, if TRUE then make minor adjustment to origin.
+#'        Ignored if \code{inverse} is FALSE.
+#' @param filename character see \code{\link[raster]{merge}}
+#' @param ... optional arguments for \code{\link[raster]{merge}}
+#' @return raster object
+raster_rotate <- function(x,
+                          inverse = FALSE,
+                          adjust_origin = TRUE,
+                          filename = "", ...){
+
+  if (inverse){
+    # [-180, 180] -> [0,360]
+    # modified from original
+    # https://github.com/rspatial/raster/blob/master/R/rotate.R
+    e <- raster::extent(x)
+    xrange <- e@xmax - e@xmin
+    if (xrange < 350 | xrange > 370 | slot(e, "xmin") > -170 | slot(e, "xmax") > 190) {
+      if (xrange < 350 | xrange > 370 | slot(e, "xmin") < -190 | slot(e, "xmax") > 190) {
+        warning('this does not look like an appropriate object for this function')
+      }
+    }
+    bb <- bb_split(as.vector(e), at = 0)
+    west <- raster::crop(x, bb[['bb1']])
+    east <- raster::crop(x, bb[['bb2']])
+    west2 <- raster::shift(west, dx = 360)
+    if (adjust_origin) raster::origin(west2) <- raster::origin(west)
+    x <- raster::merge(east, west2,
+                       filename = filename, ...)
+
+  } else {
+    x <- raster::rotate(x, filename = filename, ...)
+  }
+  x
+
+}
