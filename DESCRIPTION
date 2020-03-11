@@ -10,6 +10,7 @@ Encoding: UTF-8
 Depends:
     R (>= 3.0)
 Imports:
+    methods,
     stats,
     rgdal,
     sf,
@@ -20,5 +21,6 @@ Imports:
     hexbin,
     geosphere,
     geometry,
-    RANN
+    RANN,
+    rstackdeque
 RoxygenNote: 6.1.1

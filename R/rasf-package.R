@@ -5,6 +5,7 @@
 #'
 #' @docType package
 #' @name rasf
+#' @importFrom methods slot
 #' @importFrom stats runif median
 #' @importFrom dplyr %>%
 #' @importFrom rlang .data := !!

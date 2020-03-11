@@ -560,7 +560,7 @@ raster_rotate <- function(x,
     # modified from original
     # https://github.com/rspatial/raster/blob/master/R/rotate.R
     e <- raster::extent(x)
-    xrange <- e@xmax - e@xmin
+    xrange <- slot(e, "xmax") - slot(e, "xmin")
     if (xrange < 350 | xrange > 370 | slot(e, "xmin") > -170 | slot(e, "xmax") > 190) {
       if (xrange < 350 | xrange > 370 | slot(e, "xmin") < -190 | slot(e, "xmax") > 190) {
         warning('this does not look like an appropriate object for this function')

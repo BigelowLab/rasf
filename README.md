@@ -21,6 +21,8 @@ Tools for working with [raster](https://cran.r-project.org/package=raster) and [
 
 + [hexbin](https://cran.r-project.org/package=hexbin)
 
++ [rstackdeque](https://cran.r-project.org/package=rstackdeque)
+
 ### Installation
 
 ```r
