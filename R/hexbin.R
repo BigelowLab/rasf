@@ -15,8 +15,12 @@
 #' @return a POLYGON sf data frame
 st_hexbin_utm <- function(x, y, z,
                           fun = c('mean', 'count', 'median')[2],
-                          crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0",
-                          utm_crs = "+proj=utm +zone=19 ellps=WGS84",
+                          crs = ifelse(use_wkt("sf"),
+                            "epsg:4326",
+                            "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"),
+                          utm_crs = ifelse(use_wkt("sf"),
+                            "epsg:32619",
+                            "+proj=utm +zone=19 ellps=WGS84"),
                           na.rm = TRUE,
                           ...){
 
@@ -95,7 +99,9 @@ st_hexbin_utm <- function(x, y, z,
 #' }
 st_hexbin <- function(x, y, z,
                       fun = c('mean', 'count', 'median')[2],
-                      crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0",
+                      crs = ifelse(use_wkt("sf"),
+                                   "epsg:4326",
+                                   "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"),
                       na.rm = TRUE,
                       ...){
 

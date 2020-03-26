@@ -53,7 +53,7 @@ to360 <- function(x) {x %% 360}
 #' @param crs character, the coordinate reference system
 #' @return sf bbox object
 bb_to_bbox <- function(bb = c(-72, -63, 39, 46),
-                       crs = "+init=epsg:4326"){
+                       crs = ifelse(use_wkt("sf"), "epsg:4326", "+init=epsg:4326")){
 
   sf::st_bbox(c(xmin = bb[1], xmax = bb[2], ymin = bb[3], ymax = bb[4]),
               crs = crs)
@@ -70,7 +70,7 @@ bb_to_bbox <- function(bb = c(-72, -63, 39, 46),
 #' @param crs character, the coordinate reference system
 #' @return a simple feature with a POLYGON or multiple feature object
 bb_to_polygon <- function(bb = c(-72, -63, 39, 46),
-                          crs = "+init=epsg:4326"){
+                          crs = ifelse(use_wkt("sf"), "epsg:4326", "+init=epsg:4326")){
 
   if (is.list(bb)){
     pp <- lapply(seq_len(length(bb)),

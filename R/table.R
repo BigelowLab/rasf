@@ -20,14 +20,17 @@
 #' # 2 -63  46      964564.1        5111577
 #' }
 project_table <- function(x = data.frame(lon = c(-72, -63), lat = c(39, 46)),
-                           from_crs = "+init=epsg:4326",
-                           to_crs = "+init=epsg:32619",
+                           from_crs =  ifelse(use_wkt("sf"),
+                             "epsg:4326",
+                             "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"),
+                            to_crs = ifelse(use_wkt("sf"),
+                              "epsg:32619",
+                              "+proj=utm +zone=19 ellps=WGS84"),
                            from_names = c('lon', 'lat'),
                            to_names = c("x", "y")){
 
   ll <- x %>% dplyr::select(from_names)
   ix <- apply(ll, 1, function(x) any(is.na(x)) )
-  #input <- ll %>% dplyr::filter(!ix)
   output = sf::st_as_sf(ll %>% dplyr::filter(!ix),
                    coords = from_names,
                    crs = from_crs,
@@ -35,11 +38,8 @@ project_table <- function(x = data.frame(lon = c(-72, -63), lat = c(39, 46)),
           sf::st_transform(crs = to_crs) %>%
           sf::st_coordinates() %>%
           dplyr::as_tibble()
-  #sp::coordinates(input) <- from_names
-  #sp::proj4string(input) <- from_crs
-  #output <- sp::coordinates(sp::spTransform(input, to_crs))
+
   ll[!ix,] <- output
-  #ll[!ix,] <- tibble::as_tibble(output[,1])
   colnames(ll) <- to_names
   if (tibble::has_name(x, to_names[1])) {
     x[[to_names[[1]]]] <- ll[[to_names[1]]]

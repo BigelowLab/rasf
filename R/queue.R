@@ -5,7 +5,7 @@
 #' @param Q rdeque class object
 #' @param x an element to add to the front of the queue
 #' @return the updated queue
-qpush    <- function(Q, x) {
+qpush <- function(Q, x) {
   rstackdeque::insert_front(Q, x)
 }
 

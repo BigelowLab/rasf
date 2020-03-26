@@ -1,3 +1,4 @@
+
 #' Test the geometry for inheritance
 #'
 #' @export
@@ -43,7 +44,7 @@ points_to_mesh <- function(x, varname = NULL, fun = mean, ...){
   	}, xy = xy, del = d)
 	mesh <- dplyr::tibble(p1 = d[,1], p2 = d[,2], p3 = d[,3]) %>%
 		dplyr::mutate(geometry = g) %>%
-    sf::st_sf(sf_column_name = "geometry", crs = sf::st_crs(x)$proj4string)
+    sf::st_sf(sf_column_name = "geometry", crs = sf::st_crs(x))
 
   if (!is.null(varname)){
   	stopifnot(all(varname %in% colnames(x)))
