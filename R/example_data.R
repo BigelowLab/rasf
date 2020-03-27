@@ -7,6 +7,7 @@
 #' @param indexed logical, if TRUE then assign 1,2,3,... as cell values
 #' @return RasterLayer
 volcano_raster <- function(indexed = FALSE){
+  crs <- ifelse(use_wkt("raster"), "epsg:27200", "+init=epsg:27200")
   m <- t(datasets::volcano)[61:1, ]
   s <- 10
   x <- seq(from = 6478705, length.out = 87, by = s)
@@ -16,7 +17,7 @@ volcano_raster <- function(indexed = FALSE){
                       xmx = max(x) + s/2,
                       ymn = min(y) - s/2,
                       ymx = max(y) + s/2,
-                      crs = "+init=epsg:27200")
+                      crs = crs)
   if (indexed){
     s <- raster_dim(r)
     r <- raster::setValues(r, seq_len(s[['ncell']]))
@@ -77,10 +78,11 @@ volcano_points <- function(x = volcano_stack(), n = 100, ...){
 #' }
 #' }
 volcano_polygon <- function(){
+  crs <- ifelse(use_wkt("sf"), "epsg:27200", "+init=epsg:27200")
   x <- 6478700 + c(301, 622, 622, 500, 500, 301, 301)
   y <- 2667400 + c(100, 100, 450, 450, 200, 200, 100)
   sf::st_sfc(sf::st_polygon(list(cbind(x,y))),
-               crs = "+init=epsg:27200")
+               crs = crs)
 }
 
 #' Generate a dataset of points for use with \code{\link{st_hexbin}}

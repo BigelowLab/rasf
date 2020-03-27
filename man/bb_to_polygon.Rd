@@ -4,7 +4,10 @@
 \alias{bb_to_polygon}
 \title{Convert a 4-element bounding box vector to a polygon simple feature object.}
 \usage{
-bb_to_polygon(bb = c(-72, -63, 39, 46), crs = "+init=epsg:4326")
+bb_to_polygon(
+  bb = c(-72, -63, 39, 46),
+  crs = ifelse(use_wkt("sf"), "epsg:4326", "+init=epsg:4326")
+)
 }
 \arguments{
 \item{bb}{a 4-element numeric vector of left, right, bottom and top

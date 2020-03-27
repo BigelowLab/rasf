@@ -4,9 +4,16 @@
 \alias{st_hexbin}
 \title{Retrieve of set of hex-binned polygons for the given xyz data}
 \usage{
-st_hexbin(x, y, z, fun = c("mean", "count", "median")[2],
-  crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0",
-  na.rm = TRUE, ...)
+st_hexbin(
+  x,
+  y,
+  z,
+  fun = c("mean", "count", "median")[2],
+  crs = ifelse(use_wkt("sf"), "epsg:4326",
+    "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"),
+  na.rm = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{a vector of x-locations}
