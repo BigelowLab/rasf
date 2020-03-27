@@ -169,7 +169,8 @@ randomPts <- function(x,
     if (inherits(pcell, "try-error")){
       stop("unable to extract polygon from raster")
     }
-    nlayers <- seq_len(shape[['nlayer']]-1)
+    #nlayers <- seq_len(shape[['nlayer']]-1)
+    nlayers <- seq_len(shape[['nlayer']]) - 1
     nindex <- nlayers * shape[['ncell']]
     index <- c(pcell, as.vector(sapply(nindex, function(i) i + pcell)))
     loc <- xyCellLayerFromIndex(index, x)
@@ -183,11 +184,11 @@ randomPts <- function(x,
     if (!is.null(pts)){
       idx <- indexFromPts(pts, x)
       loc <- loc %>%
-        dplyr::filter(!(idx %in% .data$index))
+        dplyr::filter(!(.data$index %in% idx))
     }
     replace <- nrow(loc) < n
     if (replace){
-      warning(c(sprintf("number of available cells, %i, less than request, %i",
+      warning(c(sprintf("number of available cells, %i, less than request, %i ",
                       nrow(loc), n),
                 "some points may be duplicated"))
 
