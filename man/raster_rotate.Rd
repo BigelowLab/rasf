@@ -5,7 +5,8 @@
 \title{A wrapper around \code{\link[raster]{rotate}} that provides rotation from
 [-180,180] to [0,360].}
 \usage{
-raster_rotate(x, inverse = FALSE, adjust_origin = TRUE, filename = "", ...)
+raster_rotate(x, inverse = FALSE, adjust_origin = TRUE,
+  filename = "", ...)
 }
 \arguments{
 \item{x}{raster, a raster object with global coverage}

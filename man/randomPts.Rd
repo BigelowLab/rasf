@@ -4,7 +4,8 @@
 \alias{randomPts}
 \title{Generate random points within a raster object.}
 \usage{
-randomPts(x, n = 100, m = 2, na.rm = FALSE, pts = NULL, polygon = NULL)
+randomPts(x, n = 100, m = 2, na.rm = FALSE, pts = NULL,
+  polygon = NULL)
 }
 \arguments{
 \item{x}{Raster* layer, brick or stack}

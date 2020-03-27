@@ -3,6 +3,7 @@
 \docType{package}
 \name{rasf}
 \alias{rasf}
+\alias{rasf-package}
 \title{rasf: Tools for working with rasters and simple features.}
 \description{
 Extra functionality for working with raster and sf data.
