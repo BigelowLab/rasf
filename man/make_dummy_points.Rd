@@ -4,8 +4,7 @@
 \alias{make_dummy_points}
 \title{Make dummy points set for a given raster}
 \usage{
-make_dummy_points(R = make_dummy_stack(), N = 10, M = 2,
-  na.rm = TRUE)
+make_dummy_points(R = make_dummy_stack(), N = 10, M = 2, na.rm = TRUE)
 }
 \arguments{
 \item{R}{RasterLayer, Stack or Brick}

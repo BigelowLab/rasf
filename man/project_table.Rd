@@ -4,12 +4,14 @@
 \alias{project_table}
 \title{Transform locations in a table from one projection to another}
 \usage{
-project_table(x = data.frame(lon = c(-72, -63), lat = c(39, 46)),
+project_table(
+  x = data.frame(lon = c(-72, -63), lat = c(39, 46)),
   from_crs = ifelse(use_wkt("sf"), "epsg:4326",
-  "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"),
-  to_crs = ifelse(use_wkt("sf"), "epsg:32619",
-  "+proj=utm +zone=19 ellps=WGS84"), from_names = c("lon", "lat"),
-  to_names = c("x", "y"))
+    "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"),
+  to_crs = ifelse(use_wkt("sf"), "epsg:32619", "+proj=utm +zone=19 ellps=WGS84"),
+  from_names = c("lon", "lat"),
+  to_names = c("x", "y")
+)
 }
 \arguments{
 \item{x}{table(data.frame or tibble) with columns specified by \code{from_names}}

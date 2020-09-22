@@ -5,12 +5,19 @@
 \title{Make a raster LUT which is essentially a lookup table that for a given
 location points to the nearest non-mask value in a mask.}
 \usage{
-make_raster_lut(x = make_dummy_mask(), mask_value = NA)
+make_raster_lut(
+  x = make_dummy_mask(),
+  mask_value = NA,
+  nonreassigned_value = "cellnumber"
+)
 }
 \arguments{
 \item{x}{raster mask}
 
 \item{mask_value}{numeric the value of masked areas, by default NA}
+
+\item{nonreassigned_value}{either "cellnumber" which indicates cell number should be used
+or some numeric value like NA.}
 }
 \value{
 raster of cell addresses.  Where the input, R, had non-mask values the

@@ -70,10 +70,13 @@ make_dummy_points <- function(R = make_dummy_stack(), N = 10, M = 2, na.rm = TRU
 #' @export
 #' @param x raster mask
 #' @param mask_value numeric the value of masked areas, by default NA
+#' @param nonreassigned_value either "cellnumber" which indicates cell number should be used
+#'        or some numeric value like NA.
 #' @return raster of cell addresses.  Where the input, R, had non-mask values the
 #'   cell addresses point to the input cell.  Where the input had mask-valued cells,
 #'   the output cell addresses point to the nearest non-mask cells in the input.
-make_raster_lut <- function(x = make_dummy_mask(), mask_value = NA){
+make_raster_lut <- function(x = make_dummy_mask(), mask_value = NA,
+  nonreassigned_value = "cellnumber"){
 
   # create a matrix with cell numbers (ordered by row top to bottom)
   d <- dim(x)
@@ -88,7 +91,7 @@ make_raster_lut <- function(x = make_dummy_mask(), mask_value = NA){
   # if none are NA, then we are done
   if (!any(isna)) return(R)
   R[isna] <- 0  # masked
-  R[!isna] <- 1 # unmasked
+  if (nonreassigned_value[1] != "cellnumber") R[!isna] <- nonreassigned_value[1] # unmasked
   # convert to points and cells
   maskedPts <- raster::rasterToPoints(R, function(x) x <= 0)[,c('x','y')]
   maskedCell <- raster::cellFromXY(R, maskedPts)
