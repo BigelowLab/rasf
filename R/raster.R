@@ -420,7 +420,7 @@ extractPts <- function(pts, x){
 
   if (!is_raster(x)) stop("Input x must be a Raster* class")
   shape <- raster_dim(x)
-  if (shape[["nlayer"]] == 1) return(raster::extract(x, pts))
+
 
   if (inherits(pts, 'sf')) pts <- pts %>% sf::st_drop_geometry()
   if (!inherits(pts, "tbl_df")) {
@@ -454,6 +454,9 @@ extractPts <- function(pts, x){
     iy <- which(nm %in% c("y", "lat"))[1]
     if (length(iy) == 0) stop("pts must have 'y' or 'lat' column")
   }
+
+  if (shape[["nlayer"]] == 1) return(raster::extract(x, pts[,c(ix,iy)] %>% as.matrix()))
+
   if (inherits(pts$layer, 'character')){
     nm <- names(x)
     if (is.null(nm)){
@@ -469,7 +472,7 @@ extractPts <- function(pts, x){
   ff      <- pts$layer
   pp      <- split(pts, ff)
   layers  <- seq.int(shape[['nlayer']])
-  vv      <- sapply(names(pp),
+  vv      <- lapply(names(pp),
                     function(i){
                       j <- as.integer(i)
                       if (j %in% layers){
