@@ -113,10 +113,23 @@ make_raster_lut <- function(x = make_dummy_mask(), mask_value = NA,
 #' @param x the data frame with lon and lat coordinates
 #' @param lut the raster look-up with precomputed closest non-NA cells
 #' @return tibble with lon and lat columns
-closest_available_cell <- function(x, lut = make_raster_lut()){
-  reassignCell <- raster::extract(lut, x)
-  xy <- raster::xyFromCell(lut, reassignCell)
-  dplyr::tibble(lon = xy[,1], lat = xy[,2])
+closest_available_cell <- function(
+  x = dplyr::tibble(lon = c(0.1, 0.6, 0.9, 0.1),
+                    lat = c(0.3, 0.1, 0.8, 0.9)),
+  lut = make_raster_lut()){
+  index <- raster::raster(matrix(seq_len(raster::ncell(lut)),
+                                 ncol = ncol(lut),
+                                 nrow = nrow(lut),
+                                 byrow = TRUE),
+                          template = lut)
+  lutCell <- raster::extract(lut, x)
+  indexCell <- raster::extract(index, x)
+  d <- lutCell != indexCell
+  xy <- x %>% dplyr::select(.data$lon, .data$lat)
+  dxy <- raster::xyFromCell(lut, lutCell[d])
+  xy$lon[d] <- dxy[,1]
+  xy$lat[d] <- dxy[,2]
+  xy
 }
 
 #

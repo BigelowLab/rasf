@@ -4,7 +4,10 @@
 \alias{closest_available_cell}
 \title{Determine the closest non-NA pixel given [lon,lat] and a lut raster}
 \usage{
-closest_available_cell(x, lut = make_raster_lut())
+closest_available_cell(
+  x = dplyr::tibble(lon = c(0.1, 0.6, 0.9, 0.1), lat = c(0.3, 0.1, 0.8, 0.9)),
+  lut = make_raster_lut()
+)
 }
 \arguments{
 \item{x}{the data frame with lon and lat coordinates}
