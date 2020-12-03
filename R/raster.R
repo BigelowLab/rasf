@@ -80,18 +80,26 @@ make_raster_lut <- function(x = make_dummy_mask(), mask_value = NA,
 
   # create a matrix with cell numbers (ordered by row top to bottom)
   d <- dim(x)
-  allCell <- matrix(seq_len(d[1]*d[2]), d[1], d[2], byrow = TRUE)
+  #allCell <- matrix(seq_len(d[1]*d[2]), d[1], d[2], byrow = TRUE)
   # create raster of cell numbers and reassign missing values
-  R <- raster::raster(allCell, template = x)
+  R <- raster::raster( matrix(seq_len(d[1]*d[2]), d[1], d[2], byrow = TRUE), template = x)
+  
   if (is.na(mask_value[1])){
     isna <- is.na(x[])
   } else {
     isna <- x[] == mask_value[1]
+    # is any values of x are NA then logical comparisons fail
+    # raster should either use NA for mask values OR not have any NAs
+    if (any(is.na(isna))){
+      warning("one or more input raster values missing - check input and mask_value")
+      return(R)
+    }
   }
+
   # if none are NA, then we are done
   if (!any(isna)) return(R)
   R[isna] <- 0  # masked
-  if (nonreassigned_value[1] != "cellnumber") R[!isna] <- nonreassigned_value[1] # unmasked
+  if (nonreassigned_value[1] != "cellnumber") R[!isna] <- nonreassigned_value[1]
   # convert to points and cells
   maskedPts <- raster::rasterToPoints(R, function(x) x <= 0)[,c('x','y')]
   maskedCell <- raster::cellFromXY(R, maskedPts)
