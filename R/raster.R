@@ -83,7 +83,7 @@ make_raster_lut <- function(x = make_dummy_mask(), mask_value = NA,
   #allCell <- matrix(seq_len(d[1]*d[2]), d[1], d[2], byrow = TRUE)
   # create raster of cell numbers and reassign missing values
   R <- raster::raster( matrix(seq_len(d[1]*d[2]), d[1], d[2], byrow = TRUE), template = x)
-  
+
   if (is.na(mask_value[1])){
     isna <- is.na(x[])
   } else {
@@ -130,10 +130,10 @@ closest_available_cell <- function(
                                  nrow = nrow(lut),
                                  byrow = TRUE),
                           template = lut)
-  lutCell <- raster::extract(lut, x)
-  indexCell <- raster::extract(index, x)
-  d <- lutCell != indexCell
   xy <- x %>% dplyr::select(.data$lon, .data$lat)
+  lutCell <- raster::extract(lut, xy)
+  indexCell <- raster::extract(index,  xy)
+  d <- lutCell != indexCell
   dxy <- raster::xyFromCell(lut, lutCell[d])
   xy$lon[d] <- dxy[,1]
   xy$lat[d] <- dxy[,2]
