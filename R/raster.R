@@ -517,10 +517,9 @@ extractPts <- function(pts, x){
 #'   the test, say for a brick by setting klasses to 'RasterBrick'
 #' @return logical, TRUE if the object inherits from the specified class
 is_raster <- function(x,
-  klass = "BasicRaster"){
+  klass = c("BasicRaster", "SpatRaster")){
 
-  inherits(x, klass)
-
+  any(sapply(klass, function(k) {inherits(x, k)}
 }
 
 
@@ -565,6 +564,51 @@ raster_fileinfo <- function(x){
 }
 
 
+
+#' Crop a raster - a wrapper around \code{raster::crop} or \code{raster::crop}
+#'
+#' @export
+#' @param x RasterLayer or SpatRaster
+#' @param ... other arguments for \code{raster::crop} or \code{raster::crop}
+#' @returm Raster or SpatRaster object
+raster_crop <- function(x, ...){
+  
+  stopifnot(is_raster(x))
+  
+  r <- NULL
+  
+  if (inherits(s, "SpatRaster")){
+    r <- terra::crop(x, ...)
+  } else {
+    r <- raster::crop(x, ...)
+  }
+  
+  r
+}
+
+
+#' Shift a raster - a wrapper around \code{raster::shift} or \code{raster::shift}
+#'
+#' @export
+#' @param x RasterLayer or SpatRaster
+#' @param ... other arguments for \code{raster::shift} or \code{raster::shift}
+#' @returm Raster or SpatRaster object
+raster_shift <- function(x, ...){
+  
+  stopifnot(is_raster(x))
+  
+  r <- NULL
+  
+  if (inherits(s, "SpatRaster")){
+    r <- terra::shift(x, ...)
+  } else {
+    r <- raster::shift(x, ...)
+  }
+  
+  r
+}
+
+
 #' A wrapper around \code{\link[raster]{rotate}} that provides rotation from
 #' [-180,180] to [0,360].
 #'
@@ -595,10 +639,20 @@ raster_rotate <- function(x,
       }
     }
     bb <- bb_split(as.vector(e), at = 0)
-    west <- raster::crop(x, bb[['bb1']])
-    east <- raster::crop(x, bb[['bb2']])
-    west2 <- raster::shift(west, dx = 360)
-    if (adjust_origin) raster::origin(west2) <- raster::origin(west)
+    west <- raster_crop(x, bb[['bb1']])
+    east <- raster_crop(x, bb[['bb2']])
+    west2 <- raster_shift(west, dx = 360)
+    if (adjust_origin) {
+      
+      if (inherits(x, "SpatRaster")){
+        
+        
+      } else {
+      
+        raster::origin(west2) <- raster::origin(west)
+      }
+    }
+      
     x <- raster::merge(east, west2,
                        filename = filename, ...)
 

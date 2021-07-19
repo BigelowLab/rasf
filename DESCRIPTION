@@ -16,6 +16,7 @@ Imports:
     rgdal,
     sf,
     raster,
+    terra,
     dplyr,
     tibble,
     rlang,
