@@ -6,15 +6,17 @@
 Layers 2 to nlayers slightly altered from the original as per
 \code{\link{volcano_raster}}}
 \usage{
-volcano_stack(nlayers = 3, indexed = FALSE)
+volcano_stack(nlayers = 3, indexed = FALSE, ...)
 }
 \arguments{
 \item{nlayers}{numeric, the number of layers for the stack}
 
 \item{indexed}{logical, if TRUE then assign 1,2,3,... as cell values}
+
+\item{...}{further arguments for \code{\link{volcano_raster}}}
 }
 \value{
-RasterStack
+RasterStack or SpatRaster
 }
 \description{
 Retrieve a raster stack of Auckland’s Maunga Whau volcano topography.

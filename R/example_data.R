@@ -1,3 +1,76 @@
+#' Create a dummy raster mask for testing \code{make_ratser_lut}
+#'
+#' @export
+#' @param nc integer, number of columns
+#' @param nr integer, number of rows
+#' @param klass character, one of \code{RasterLayer} of \code{SpatRaster}
+#' @return raster mask with NA values assigned to area to be masked
+make_dummy_mask <- function(nc = 10, nr = 10,
+                            klass = c("RasterLayer", "SpatRaster")[2]){
+  m <- matrix(seq_len(nc*nr), ncol = nc, nrow = nr, byrow = TRUE)
+  m[lower.tri(m)] <- NA
+  if (tolower(klass[1]) == "rasterlayer"){
+    r <- raster::raster(m)
+  } else {
+    r <- terra::rast(t(m))
+  }
+  r
+}
+
+#' Create a dummy raster stack for testing.
+#'
+#' @export
+#' @param nc integer, number of columns
+#' @param nr integer, number of rows
+#' @param nl integer, number of layers
+#' @return RasterStack or multi-layer SpatRaster with some NA cells
+make_dummy_stack <- function(nc = 10, nr = 10, nl = 10){
+  m <- make_dummy_mask(nc = nc, nr = nr)
+  n <- nc * nr
+  mm <- lapply(seq_len(nl),
+               function(i) {
+                 m + ((i-1) * n)
+               })
+  if (is_raster(m)){
+    s <- raster::stack(mm)
+    names(s) <- paste("lyr", seq_len(nl), sep =  ".")
+  } else {
+    s <- Reduce(c, mm)
+    names(s) <- paste("lyr", seq_len(nl), sep = ".")
+  }
+  s
+}
+
+#' Make dummy points set for a given raster
+#'
+#' @export
+#' @param R RasterLayer, Stack or Brick or SpatRaster
+#' @param N integer, the number of points to generate
+#' @param M numeric, a multiplier to start with a selection of random points
+#'          from which N are selected.  Ignored if na.rm is \code{FALSE}.
+#' @param na.rm logical, if TRUE then avoid NA cells
+#' @return tibble of point location info ala \code{\link{extractPts}}
+make_dummy_points <- function(R = make_dummy_stack(), N = 10, M = 2, na.rm = TRUE){
+  if (!is_raster_type(R)) stop("Input R must be a raster type")
+  s <- raster_dim(R)
+  if (na.rm){
+    index = sample(s["nindex"], N * M, replace = FALSE)
+    #pts <- cellLayerFromIndex(R, index)
+    pts <- xyCellLayerFromIndex(index, R)
+    #v <- layers_extractPoints(R, pts)
+    v <- extractPts(pts, R)
+    pts <- pts %>%
+      dplyr::filter(!is.na(v)) %>%
+      dplyr::sample_n(N)
+  } else {
+    index = sample(s["nindex"], N, replace = FALSE)
+    pts <- xyCellLayerFromIndex(index, R)
+  }
+  pts
+}
+
+
+
 #' Retrieve a raster of Auckland’s Maunga Whau volcano topography.  Adapted from
 #' USGS-R inlmisc package.
 #'
@@ -5,23 +78,44 @@
 #' @seealso \url{https://CRAN.R-project.org/package=inlmisc}
 #' @export
 #' @param indexed logical, if TRUE then assign 1,2,3,... as cell values
-#' @return RasterLayer
-volcano_raster <- function(indexed = FALSE){
-  crs <- ifelse(use_wkt("raster"), "epsg:27200", "+init=epsg:27200")
+#' @param klass character, one of \code{RasterLayer} of \code{SpatRaster}
+#' @return RasterLayer or SpatRaster
+volcano_raster <- function(indexed = FALSE,
+                           klass = c("RasterLayer", "SpatRaster")[2]){
+
   m <- t(datasets::volcano)[61:1, ]
   s <- 10
   x <- seq(from = 6478705, length.out = 87, by = s)
   y <- seq(from = 2667405, length.out = 61, by = s)
-  r <- raster::raster(m,
-                      xmn = min(x) - s/2,
-                      xmx = max(x) + s/2,
-                      ymn = min(y) - s/2,
-                      ymx = max(y) + s/2,
-                      crs = crs)
-  if (indexed){
-    s <- raster_dim(r)
-    r <- raster::setValues(r, seq_len(s[['ncell']]))
+  
+  if (tolower(klass[1]) == 'rasterlayer'){
+    crs <- ifelse(use_wkt("raster"), "epsg:27200", "+init=epsg:27200")
+    r <- raster::raster(m,
+                        xmn = min(x) - s/2,
+                        xmx = max(x) + s/2,
+                        ymn = min(y) - s/2,
+                        ymx = max(y) + s/2,
+                        crs = crs)
+    if (indexed){
+      s <- raster_dim(r)
+      r <- raster::setValues(r, seq_len(s[['ncell']]))
+    }
+  } else {
+    crs <- ifelse(use_wkt("terra"), "epsg:27200", "+init=epsg:27200")
+    r <- terra::rast(nrows = nrow(m),
+                     ncols = ncol(m),
+                     xmin = min(x) - s/2,
+                     xmax = max(x) + s/2,
+                     ymin = min(y) - s/2,
+                     ymax = max(y) + s/2,
+                     crs = crs,
+                     vals = as.vector(t(m)))
+    if (indexed){
+      s <- raster_dim(r)
+      r <- terra::setValues(r, seq_len(s[['ncell']]))
+    }                 
   }
+
   r
 }
 
@@ -33,19 +127,36 @@ volcano_raster <- function(indexed = FALSE){
 #' @export
 #' @param nlayers numeric, the number of layers for the stack
 #' @param indexed logical, if TRUE then assign 1,2,3,... as cell values
-#' @return RasterStack
+#' @param ... further arguments for \code{\link{volcano_raster}}
+#' @return RasterStack or SpatRaster
 volcano_stack <- function(nlayers = 3,
-                          indexed = FALSE){
-  r <- volcano_raster(indexed = indexed)
-  if (indexed){
+                          indexed = FALSE, 
+                          ...){
+  r <- volcano_raster(indexed = indexed, ...)
+  if (inherits(r, "SpatRaster")){
+    
+    if (indexed){
       s <- raster_dim(r)
       m <- (seq_len(nlayers) - 1) * s[['ncell']]
       rr <- lapply(seq_len(nlayers), function(i)  r + m[i])
+    } else {
+      s <- runif(nlayers, min = 0.8, max = 1.2)
+      rr <- lapply(seq_len(nlayers), function(i)  r * s[i])
+    }
+    r <- Reduce(c, rr)
+    
   } else {
-    s <- runif(nlayers, min = 0.8, max = 1.2)
-    rr <- lapply(seq_len(nlayers), function(i)  r * s[i])
+    if (indexed){
+        s <- raster_dim(r)
+        m <- (seq_len(nlayers) - 1) * s[['ncell']]
+        rr <- lapply(seq_len(nlayers), function(i)  r + m[i])
+    } else {
+      s <- runif(nlayers, min = 0.8, max = 1.2)
+      rr <- lapply(seq_len(nlayers), function(i)  r * s[i])
+    }
+    r <- raster::stack(rr)
   }
-  raster::stack(rr)
+  r
 }
 
 #' Generate a table of random points in a raster stack (or layer)

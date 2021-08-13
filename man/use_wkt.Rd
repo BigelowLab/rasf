@@ -4,7 +4,7 @@
 \alias{use_wkt}
 \title{Test if WKT is required for specifying coordinate reference}
 \usage{
-use_wkt(package = c("sf", "raster")[1], ...)
+use_wkt(package = c("sf", "raster", "terra")[1], ...)
 }
 \arguments{
 \item{package}{character, the name of the package to test}

@@ -1,6 +1,6 @@
 #' rasf: Tools for working with rasters and simple features.
 #'
-#' Extra functionality for working with raster and sf data.
+#' Extra functionality for working with raster (raster and terra packages) and sf data.
 #'
 #'
 #' @docType package

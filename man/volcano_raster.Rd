@@ -5,13 +5,15 @@
 \title{Retrieve a raster of Auckland’s Maunga Whau volcano topography.  Adapted from
 USGS-R inlmisc package.}
 \usage{
-volcano_raster(indexed = FALSE)
+volcano_raster(indexed = FALSE, klass = c("RasterLayer", "SpatRaster")[2])
 }
 \arguments{
 \item{indexed}{logical, if TRUE then assign 1,2,3,... as cell values}
+
+\item{klass}{character, one of \code{RasterLayer} of \code{SpatRaster}}
 }
 \value{
-RasterLayer
+RasterLayer or SpatRaster
 }
 \description{
 Retrieve a raster of Auckland’s Maunga Whau volcano topography.  Adapted from

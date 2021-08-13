@@ -2,7 +2,7 @@
 % Please edit documentation in R/raster.R
 \name{extractPts}
 \alias{extractPts}
-\title{Extract values from a Raster* object}
+\title{Extract values from a Raster* of SpatRaster object}
 \usage{
 extractPts(pts, x)
 }
@@ -25,5 +25,5 @@ then pts is passed to \code{raster::extract()} immediately.}
 a vector of values
 }
 \description{
-Extract values from a Raster* object
+Extract values from a Raster* of SpatRaster object
 }

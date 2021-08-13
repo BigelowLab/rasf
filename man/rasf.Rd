@@ -5,5 +5,5 @@
 \alias{rasf}
 \title{rasf: Tools for working with rasters and simple features.}
 \description{
-Extra functionality for working with raster and sf data.
+Extra functionality for working with raster (raster and terra packages) and sf data.
 }

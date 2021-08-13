@@ -2,7 +2,7 @@ Package: rasf
 Maintainer: Ben Tupper <btupper@bigelow.org>
 Author: Ben Tupper <btupper@bigelow.org>
 URL: https://github.com/bigelowlab/rasf
-Version: 0.1
+Version: 1.0
 License: MIT + file LICENSE
 Title: rasf
 Description: Tools for working with rasters and simple features.

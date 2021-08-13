@@ -7,7 +7,7 @@ location points to the nearest non-mask value in a mask.}
 \usage{
 make_raster_lut(
   x = make_dummy_mask(),
-  mask_value = NA,
+  mask_value = NA_real_,
   nonreassigned_value = "cellnumber"
 )
 }

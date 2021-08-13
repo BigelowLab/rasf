@@ -2,7 +2,7 @@
 % Please edit documentation in R/raster.R
 \name{indexFromCellLayer}
 \alias{indexFromCellLayer}
-\title{Compute array indices given cell and layer}
+\title{Compute 3d array indices given cell and layer}
 \usage{
 indexFromCellLayer(cellLayer, x)
 }
@@ -10,11 +10,11 @@ indexFromCellLayer(cellLayer, x)
 \item{cellLayer}{2 element data frame (or tibble) with cell and layer.  If layer is
 of type character we covert to integer using \code{names(x)}}
 
-\item{x}{Raster* layer, brick or stack}
+\item{x}{Raster* of SpatRaster}
 }
 \value{
 cellLayer with index added
 }
 \description{
-Compute array indices given cell and layer
+Compute 3d array indices given cell and layer
 }

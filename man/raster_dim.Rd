@@ -7,7 +7,7 @@
 raster_dim(x)
 }
 \arguments{
-\item{x}{Raster object}
+\item{x}{raster object}
 }
 \value{
 numeric vector of

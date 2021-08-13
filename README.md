@@ -1,6 +1,6 @@
 # rasf
 
-Tools for working with [raster](https://cran.r-project.org/package=raster) and [sf](https://cran.r-project.org/package=sp)
+Tools for working with [raster](https://cran.r-project.org/package=raster),  [terra](https://cran.r-project.org/package=terra) and [sf](https://cran.r-project.org/package=sp) packages.
 
 
 ### Requirements
@@ -10,6 +10,8 @@ Tools for working with [raster](https://cran.r-project.org/package=raster) and [
 + [sf](https://cran.r-project.org/package=sf)
 
 + [raster](https://cran.r-project.org/package=raster)
+
++ [terra](https://cran.r-project.org/package=terra)
 
 + [rlang](https://cran.r-project.org/package=rlang)
 
