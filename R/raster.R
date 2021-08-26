@@ -69,22 +69,22 @@ make_raster_lut <- function(x = make_dummy_mask(),
   
   maskedPts <- allPts %>%
     dplyr::filter(ixMask) %>% 
-    dplyr::select(x, y) %>%
+    dplyr::select(.data$x, .data$y) %>%
     as.matrix()
   okPts <- allPts %>%
     dplyr::filter(!ixMask) %>% 
-    dplyr::select(x, y) %>%
+    dplyr::select(.data$x, .data$y) %>%
     as.matrix()
   
-  # if (is_raster(R)){
-  #   # convert to points and cells
-  #   maskedPts <- raster::rasterToPoints(R, function(x) x <= 0)[,c('x','y')]
-  #   maskedCell <- raster::cellFromXY(R, maskedPts)
-  #   okPts <- raster::rasterToPoints(R, function(x) x > 0)[,c('x','y')]
-  # } else {
-  #   maskedPts <- terra::as.points(R)
-  #   
-  # }
+   if (is_raster(R)){
+     # convert to points and cells
+     maskedPts <- raster::rasterToPoints(R, function(x) x <= 0)[,c('x','y')]
+     maskedCell <- raster::cellFromXY(R, maskedPts)
+     #okPts <- raster::rasterToPoints(R, function(x) x > 0)[,c('x','y')]
+   } else {
+     maskedPts <- terra::as.points(R)
+     maskedCell <- terra::cellFromXY(R, maskedPts)
+   }
   
   # magic
   ix <- RANN::nn2(okPts, maskedPts, k = 1)
@@ -683,7 +683,7 @@ raster_crop <- function(x, ...){
   
   r <- NULL
   
-  if (inherits(s, "SpatRaster")){
+  if (is_terra(x)){
     r <- terra::crop(x, ...)
   } else {
     r <- raster::crop(x, ...)
@@ -705,7 +705,7 @@ raster_shift <- function(x, ...){
   
   r <- NULL
   
-  if (inherits(s, "SpatRaster")){
+  if (is_terra(x)){
     r <- terra::shift(x, ...)
   } else {
     r <- raster::shift(x, ...)
