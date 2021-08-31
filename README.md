@@ -1,64 +1,86 @@
+sf and rasterized data
+================
+
 # rasf
 
-Tools for working with [raster](https://cran.r-project.org/package=raster),  [terra](https://cran.r-project.org/package=terra) and [sf](https://cran.r-project.org/package=sp) packages.
+Tools for working with
+[raster](https://cran.r-project.org/package=raster),
+[terra](https://cran.r-project.org/package=terra) and
+[sf](https://cran.r-project.org/package=sp) packages.
 
+We have prepared the functionality in this package to operate on
+rasterized data from either the
+[raster](https://cran.r-project.org/package=raster) or it’s successor
+the [terra](https://cran.r-project.org/package=terra) packages. Rather
+than using S3 class dispatch, handling the various inputs is done by
+simply testing that the input(s) inherit form either `BasicRaster`
+(raste package) or `SpatRaster` (terra package).
 
 ### Requirements
 
-+ [R 3+](https://www.r-project.org/)
+-   [R 3+](https://www.r-project.org/)
 
-+ [sf](https://cran.r-project.org/package=sf)
+-   [sf](https://cran.r-project.org/package=sf)
 
-+ [raster](https://cran.r-project.org/package=raster)
+-   [raster](https://cran.r-project.org/package=raster)
 
-+ [terra](https://cran.r-project.org/package=terra)
+-   [terra](https://cran.r-project.org/package=terra)
 
-+ [rlang](https://cran.r-project.org/package=rlang)
+-   [rlang](https://cran.r-project.org/package=rlang)
 
-+ [dplyr](https://cran.r-project.org/package=dplyr)
+-   [dplyr](https://cran.r-project.org/package=dplyr)
 
-+ [tibble](https://cran.r-project.org/package=tibble)
+-   [tibble](https://cran.r-project.org/package=tibble)
 
-+ [geosphere](https://cran.r-project.org/package=geosphere)
+-   [geosphere](https://cran.r-project.org/package=geosphere)
 
-+ [hexbin](https://cran.r-project.org/package=hexbin)
+-   [hexbin](https://cran.r-project.org/package=hexbin)
 
-+ [rstackdeque](https://cran.r-project.org/package=rstackdeque)
+-   [rstackdeque](https://cran.r-project.org/package=rstackdeque)
 
 ### Installation
 
-```r
-devtools::install("BigelowLab/rasf")
-```
+    remotes::install_github("BigelowLab/rasf", upgrade = FALSE)
 
 ### Rasters
 
-Here we view rasters as multi-layer images.  We observe the convention that cells in 
-raster may addressed by row and column number as well as cell number.  Cell number is 
-akin to a single address into a 2-d array.  To these concepts we add index number which extends
-cell numbers into the 3-d layer space.  As shown below, in the first layer cell numbers
-and index numbers are the same.  In the next layer, cell numbers remain the same 
-as in the first layer, but index numbers advance by the total number of cells in a single layer.
+Here we view rasters as multi-layer images. We observe the convention
+that cells in raster may addressed by row and column number as well as
+cell number. Cell number is akin to a single address into a 2-d array.
+To these concepts we add index number which extends cell numbers into
+the 3-d layer space. As shown below, in the first layer cell numbers and
+index numbers are the same. In the next layer, cell numbers remain the
+same as in the first layer, but index numbers advance by the total
+number of cells in a single layer.
 
 ![](inst/raster.png)
 
-The `raster_dim()` function provides a layout for the shape of a multi-layer raster.
+The `raster_dim()` function provides a layout for the shape of a
+multi-layer raster.
 
-```
+``` r
 library(rasf)
 library(dplyr)
+library(terra)
 library(raster)
 S <- volcano_stack()
 (shape <- raster_dim(S))
+```
+
+    ##   ncol   nrow  ncell nlayer nindex 
+    ##     87     61   5307      3  15921
+
+``` r
 #  ncol   nrow  ncell nlayer nindex 
 #    87     61   5307      3  15921 
 ```
 
 #### Raster point extraction
 
-`rasf` provides functionality to extract points from multi-layer rasters...
+`rasf` provides functionality to extract points from multi-layer
+rasters…
 
-```
+``` r
 index <- sample(shape[['nindex']], 100)
 pts <- xyCellLayerFromIndex(index, S) %>%
   dplyr::select(x,y,layer)
@@ -80,36 +102,41 @@ pts <- xyCellLayerFromIndex(index, S) %>%
 
 values <- extractPts(pts, S)
 head(values)
+```
+
+    ## [1] 145.2111 103.5901 150.2385 159.1741 118.3887 119.7213
+
+``` r
 # [1] 139.6309 111.2851 137.6362 150.6019 122.4136 153.7757
 ```
 
 #### Raster random points
 
-Random points can be selected from a multi-layer raster.  The user can specify a
-search 2-d polygon to limit the cells sampled. Missing values can be avoided as 
-can specified points can be explicitly avoided (useful when sampling background
-points near observations.)  
+Random points can be selected from a multi-layer raster. The user can
+specify a search 2-d polygon to limit the cells sampled. Missing values
+can be avoided as can specified points can be explicitly avoided (useful
+when sampling background points near observations.)
 
-```
+``` r
 zlim <- raster_range(S)
 p <- volcano_polygon()
 pts <- randomPts(S, polygon = p)
 par(mfrow = c(1,3))
 for (i in seq_len(3)){
- plot(S[[i]], main = paste("Layer", i), zlim = zlim, axes = FALSE)
+ plot(S[[i]], main = paste("Layer", i), range = zlim, axes = FALSE)
  plot(p, add = TRUE)
  with(pts %>% dplyr::filter(layer == i), points(x, y))
 }
 ```
 
-![](inst/polygon.png)
+![](README_files/figure-gfm/random_points-1.png)<!-- -->
 
 ### Tables
 
-Sometimes it is desireable to transform a table (data.frame or tibble) with coordinates
-from one CRS to another.  
+Sometimes it is desireable to transform a table (data.frame or tibble)
+with coordinates from one CRS to another.
 
-```
+``` r
 x <- data.frame(lon = c(-72, -63), lat = c(39, 46))
 y <- project_table(x, 
                    from_names = c("lon", "lat"),
@@ -123,10 +150,11 @@ y <- project_table(x,
 
 ### Hexbin
 
-Finally, sometimes it is convenient to group scattered data into hexagonal bins.
-The binning process can produce the mean, median or count. 
+Finally, sometimes it is convenient to group scattered data into
+hexagonal bins. The binning process can produce the mean, median or
+count.
 
-```
+``` r
 xyz <- hexbin_points()
 hb <- st_hexbin(xyz$x, xyz$y, xyz$z)
 hb <- dplyr::rename(hb, count = value)
@@ -138,4 +166,4 @@ plot(hb, asp = 1, reset = FALSE, axes = TRUE)
 plot(pts, col = 'green', add = TRUE)
 ```
 
-![](inst/hexbin.png)
+![](README_files/figure-gfm/hexbin-1.png)<!-- -->

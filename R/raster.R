@@ -19,12 +19,12 @@
 #' @return raster of cell addresses.  Where the input, R, had non-mask values the
 #'   cell addresses point to the input cell.  Where the input had mask-valued cells,
 #'   the output cell addresses point to the nearest non-mask cells in the input.
-make_raster_lut <- function(x = make_dummy_mask(), 
+make_raster_lut <- function(x = make_dummy_mask(),
                             mask_value = NA_real_,
                             nonreassigned_value = "cellnumber"){
 
   if (!is_raster_type(x)) stop("Input R must be a raster type")
-  
+
   # create a matrix with cell numbers (ordered by row top to bottom)
   d <- raster_dim(x)
   #allCell <- matrix(seq_len(d[1]*d[2]), d[1], d[2], byrow = TRUE)
@@ -33,18 +33,18 @@ make_raster_lut <- function(x = make_dummy_mask(),
   if (is_raster(x)){
     R <- raster::raster(matrix(m, d[['ncol']], d[['nrow']], byrow = TRUE), template = x)
   } else {
-    R <- terra::rast(nrows = d[['nrow']], 
+    R <- terra::rast(nrows = d[['nrow']],
                      ncols = d[['ncol']],
-                     nlyrs = 1, 
-                     xmin = terra::xmin(x), 
-                     xmax = terra::xmax(x), 
-                     ymin = terra::ymin(x), 
-                     ymax = terra::ymax(x), 
-                     crs = terra::crs(x), 
+                     nlyrs = 1,
+                     xmin = terra::xmin(x),
+                     xmax = terra::xmax(x),
+                     ymin = terra::ymin(x),
+                     ymax = terra::ymax(x),
+                     crs = terra::crs(x),
                      vals = m)
-    
+
   }
-  
+
   allPts <- as_points(R) %>%
     stats::setNames(c("x", "y", "value"))
   if (is.na(mask_value[1])){
@@ -63,19 +63,19 @@ make_raster_lut <- function(x = make_dummy_mask(),
   if (!any(isna)) return(R)
   R[isna] <- 0  # masked
   if (nonreassigned_value[1] != "cellnumber") R[!isna] <- nonreassigned_value[1]
-  
-  
+
+
   ixMask <- allPts$value <= 0
-  
+
   maskedPts <- allPts %>%
-    dplyr::filter(ixMask) %>% 
+    dplyr::filter(ixMask) %>%
     dplyr::select(.data$x, .data$y) %>%
     as.matrix()
   okPts <- allPts %>%
-    dplyr::filter(!ixMask) %>% 
+    dplyr::filter(!ixMask) %>%
     dplyr::select(.data$x, .data$y) %>%
     as.matrix()
-  
+
    if (is_raster(R)){
      # convert to points and cells
      maskedPts <- raster::rasterToPoints(R, function(x) x <= 0)[,c('x','y')]
@@ -85,15 +85,15 @@ make_raster_lut <- function(x = make_dummy_mask(),
      maskedPts <- terra::as.points(R)
      maskedCell <- terra::cellFromXY(R, maskedPts)
    }
-  
+
   # magic
   ix <- RANN::nn2(okPts, maskedPts, k = 1)
   ok <- okPts[ix$nn.idx[,1],]
   # compute the new cell values and assign
   reassignedCell <- if (is_raster(R)){
-    raster::cellFromXY(R, ok) 
+    raster::cellFromXY(R, ok)
   } else {
-    terra::cellFromXY(R, ok) 
+    terra::cellFromXY(R, ok)
   }
   R[maskedCell] <- reassignedCell
   R
@@ -101,22 +101,22 @@ make_raster_lut <- function(x = make_dummy_mask(),
 
 
 #' Convert raster object to point data
-#' 
+#'
 #' @export
 #' @param x raster mask as BasicRaster or SpatRaster
 #' @param fun function or NULL, to filter points - see \code{\link[raster]{rasterToPoints}}
 #' @param ... other arguments passed through
-#' @return tibble of 
+#' @return tibble of
 #' \itemize{
 #' \item{x ala longitude}
 #' \item{y ala latitude}
 #' \item{value value at cell}
 #' }
 as_points <- function(x = make_dummy_mask(), fun = NULL, ...){
-  
+
   if (!is_raster_type(x)) stop("Input R must be a raster type")
   s <- raster_dim(x)
-  
+
   if (is_raster(x)){
     v <- raster::values(x)
     r <- raster::xyFromCell(x, seq_len(s[['ncell']])) %>%
@@ -131,12 +131,12 @@ as_points <- function(x = make_dummy_mask(), fun = NULL, ...){
       dplyr::select(dplyr::all_of(c("x", "y"))) %>%
       dplyr::mutate(value = v)
   }
-  
+
   if (!is.null(fun)) {
     r <- r %>%
       dplyr::filter(fun(v))
-  } 
-  
+  }
+
   r
 }
 
@@ -150,7 +150,7 @@ closest_available_cell <- function(
   x = dplyr::tibble(lon = c(0.1, 0.6, 0.9, 0.1),
                     lat = c(0.3, 0.1, 0.8, 0.9)),
   lut = make_raster_lut()){
-  
+
   if (is_raster(lut)){
     index <- raster::raster(matrix(seq_len(raster::ncell(lut)),
                                    ncol = ncol(lut),
@@ -228,9 +228,16 @@ randomPts <- function(x,
   shape <- raster_dim(x)
 
   if (!is.null(polygon)){
-    pcell <- try(raster::extract(x[[1]],
-                                 sf::as_Spatial(polygon),
-                                 cellnumbers = TRUE)[[1]][,"cell"])
+    if (is_raster(x)){
+      pcell <- try(raster::extract(x[[1]],
+                                   sf::as_Spatial(polygon),
+                                   cellnumbers = TRUE)[[1]][,"cell"])
+    } else {
+      pcell <- try(terra::extract(x[[1]],
+                                   terra::vect(sf::as_Spatial(polygon)),
+                                   cells = TRUE)[,"cell"])
+
+    }
     if (inherits(pcell, "try-error")){
       stop("unable to extract polygon from raster")
     }
@@ -368,7 +375,7 @@ raster_dim <- function(x){
 #'
 #' @export
 #' @param x a Raster* or SpatRaster class
-#' @param na.rm logical, if TRUE remove NAs. For objects inheriting \code{BasicRaster}. 
+#' @param na.rm logical, if TRUE remove NAs. For objects inheriting \code{BasicRaster}.
 #'   Ignored for class SpatRaster.
 #' @param collapse logical, if FALSE then a matrix is returned with two columns
 #'    which are vectors of \code{min} and \code{max} values for each layer.
@@ -379,7 +386,7 @@ raster_dim <- function(x){
 #'    min and max
 raster_range <- function(x, na.rm = TRUE, collapse = TRUE, ...){
   if (!is_raster_type(x)) stop("Input x must be a raster type")
-  
+
   if (is_raster(x)){
     mn <- raster::minValue(x)
     mx <- raster::maxValue(x)
@@ -471,7 +478,7 @@ indexFromPts <- function(pts, x ){
   if (!is_raster_type(x)) stop("Input x must be a raster type")
   shape <- raster_dim(x)
   pts <- vetPts(pts)
-  
+
   if (is_raster(x)){
     col   <- raster::colFromX(x, pts$x)
     row   <- raster::rowFromY(x, pts$y)
@@ -560,7 +567,7 @@ extractPts <- function(pts, x){
     }
     return(r)
   }
-  
+
   if (inherits(pts$layer, 'character')){
     nm <- names(x)
     if (is.null(nm)){
@@ -602,7 +609,7 @@ extractPts <- function(pts, x){
 #' @param x object to test
 #' @return logical, TRUE if the object inherits from the specified class
 is_raster <- function(x){
-  
+
   inherits(x, "BasicRaster")
 }
 
@@ -678,17 +685,17 @@ raster_fileinfo <- function(x){
 #' @param ... other arguments for \code{raster::crop} or \code{raster::crop}
 #' @return Raster or SpatRaster object
 raster_crop <- function(x, ...){
-  
+
   if (!is_raster_type(x)) stop("Input x must be a raster type")
-  
+
   r <- NULL
-  
+
   if (is_terra(x)){
     r <- terra::crop(x, ...)
   } else {
     r <- raster::crop(x, ...)
   }
-  
+
   r
 }
 
@@ -700,17 +707,17 @@ raster_crop <- function(x, ...){
 #' @param ... other arguments for \code{raster::shift} or \code{raster::shift}
 #' @return Raster or SpatRaster object
 raster_shift <- function(x, ...){
-  
+
   if (!is_raster_type(x)) stop("Input x must be a raster type")
-  
+
   r <- NULL
-  
+
   if (is_terra(x)){
     r <- terra::shift(x, ...)
   } else {
     r <- raster::shift(x, ...)
   }
-  
+
   r
 }
 
@@ -733,37 +740,37 @@ raster_rotate <- function(x,
                           adjust_origin = TRUE,
                           filename = "", ...){
   if (is_raster(x)){
-    r <- raster_rotate_raster(x, 
-                              inverse = inverse, 
+    r <- raster_rotate_raster(x,
+                              inverse = inverse,
                               adjust_origin = adjust_origin,
-                              filename = filename, 
+                              filename = filename,
                               ...)
   } else {
-    r <- raster_rotate_terra(x, 
-                              inverse = inverse, 
+    r <- raster_rotate_terra(x,
+                              inverse = inverse,
                               adjust_origin = adjust_origin,
-                              filename = filename, 
+                              filename = filename,
                               ...)
   }
   return(r)
 }
 
 
-raster_rotate_terra <- function(x, 
-                                inverse = inverse, 
+raster_rotate_terra <- function(x,
+                                inverse = inverse,
                                 adjust_origin = adjust_origin,
-                                filename = filename, 
+                                filename = filename,
                                 ...){
   stop("not implemented for terra (yet)")
 }
 
 
 
-raster_rotate_raster <- function(x, 
-                                 inverse = inverse, 
+raster_rotate_raster <- function(x,
+                                 inverse = inverse,
                                  adjust_origin = adjust_origin,
-                                 filename = filename, 
-                                 ...) { 
+                                 filename = filename,
+                                 ...) {
   if (inverse){
     # [-180, 180] -> [0,360]
     # modified from original
@@ -780,16 +787,16 @@ raster_rotate_raster <- function(x,
     east <- raster_crop(x, bb[['bb2']])
     west2 <- raster_shift(west, dx = 360)
     if (adjust_origin) {
-      
+
       if (inherits(x, "SpatRaster")){
-        
-        
+        stop("not implement for SpatRaster for terra package")
+
       } else {
-      
+
         raster::origin(west2) <- raster::origin(west)
       }
     }
-      
+
     x <- raster::merge(east, west2,
                        filename = filename, ...)
 

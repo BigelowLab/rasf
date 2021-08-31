@@ -14,7 +14,7 @@ as_points(x = make_dummy_mask(), fun = NULL, ...)
 \item{...}{other arguments passed through}
 }
 \value{
-tibble of 
+tibble of
 \itemize{
 \item{x ala longitude}
 \item{y ala latitude}

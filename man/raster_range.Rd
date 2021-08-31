@@ -9,7 +9,7 @@ raster_range(x, na.rm = TRUE, collapse = TRUE, ...)
 \arguments{
 \item{x}{a Raster* or SpatRaster class}
 
-\item{na.rm}{logical, if TRUE remove NAs. For objects inheriting \code{BasicRaster}. 
+\item{na.rm}{logical, if TRUE remove NAs. For objects inheriting \code{BasicRaster}.
 Ignored for class SpatRaster.}
 
 \item{collapse}{logical, if FALSE then a matrix is returned with two columns
