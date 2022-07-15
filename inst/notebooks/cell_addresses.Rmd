@@ -1,0 +1,23 @@
+---
+title: "Raster cell addresses"
+output: html_notebook
+---
+
+```{r}
+library(terra)
+nc <- 3
+nr <- 4
+half <- 0.5
+
+V <- rast(ncol = nc, nrow = nr, 
+          xmin = half, xmax = nc + half, 
+          ymin = half, ymax = nr + half,
+          vals = seq_len(nc*nr))
+Cell <- V
+values(Cell) <- cells(Cell)
+
+cell <- as.matrix(Cell, wide = TRUE)
+Cell
+cell
+```
+
