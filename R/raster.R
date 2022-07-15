@@ -19,6 +19,15 @@
 #' @return raster of cell addresses.  Where the input, R, had non-mask values the
 #'   cell addresses point to the input cell.  Where the input had mask-valued cells,
 #'   the output cell addresses point to the nearest non-mask cells in the input.
+#' @examples
+#' \dontrun{
+#' library(terra)
+#' mask <- make_dummy_mask()
+#' lut <- make_raster_lut(mask)
+#' z <- c(mask, lut)
+#' names(z) <- c("mask", "lut")
+#' plot(z)
+#' }
 make_raster_lut <- function(x = make_dummy_mask(),
                             mask_value = NA_real_,
                             nonreassigned_value = "cellnumber"){
@@ -45,7 +54,7 @@ make_raster_lut <- function(x = make_dummy_mask(),
 
   }
 
-  allPts <- as_points(R) %>%
+  allPts <- as_points(x) %>%
     stats::setNames(c("x", "y", "value"))
   if (is.na(mask_value[1])){
     isna <- is.na(allPts$value)
@@ -82,8 +91,12 @@ make_raster_lut <- function(x = make_dummy_mask(),
      maskedCell <- raster::cellFromXY(R, maskedPts)
      #okPts <- raster::rasterToPoints(R, function(x) x > 0)[,c('x','y')]
    } else {
-     maskedPts <- terra::as.points(R)
-     maskedCell <- terra::cellFromXY(R, maskedPts)
+     masked <- as.data.frame(R, xy = TRUE, cell = TRUE) %>%
+       dplyr::filter(.data$lyr.1 <= 0)
+     maskedPts <- masked %>%
+       dplyr::select(dplyr::all_of(c("x", "y"))) %>%
+       as.matrix()   #terra::as.points(R)
+     maskedCell <- masked$cell # terra::cellFromXY(R, maskedPts)
    }
 
   # magic

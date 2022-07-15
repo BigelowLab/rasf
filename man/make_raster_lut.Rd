@@ -34,3 +34,13 @@ non-mask cell.
 \details{
 Note this assigns the closest cell value which is a 1-d index into 2-d space.
 }
+\examples{
+\dontrun{
+library(terra)
+mask <- make_dummy_mask()
+lut <- make_raster_lut(mask)
+z <- c(mask, lut)
+names(z) <- c("mask", "lut")
+plot(z)
+}
+}

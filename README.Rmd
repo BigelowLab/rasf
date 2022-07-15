@@ -108,6 +108,10 @@ for (i in seq_len(3)){
 ```
 
 
+### Closest available cells
+
+Often in near shore settings (like estuaries) we would like to know what the sea state is from gridded datasets that might not provide nearshore data.  So we look for the closest available cell.
+
 
 ### Tables
 
